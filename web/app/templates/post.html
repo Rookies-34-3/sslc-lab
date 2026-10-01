@@ -3,7 +3,7 @@
 <div class="sc-hQQMGV BosHh"><div class="sc-gQzfVk hdfSEu"><div class="sc-dUevpl iSHlEu">
   <div class="sc-fYXIxC kkWmQk"><div class="title"><h2>{{ post.title }}</h2></div><div class="sub-info"><div><span>{{ post.created_at.strftime('%Y-%m-%d %H:%M') }} |</span><span>조회 {{ post.views }}</span></div><div><span><i class="las la-user-circle"></i>{{ post.display_name }}</span></div></div></div>
   <div class="sc-hzhJZQ doMaPq sc-dcCXRD dfhSrp rich-text-content lab-plain-content">{{ post.body }}</div>
-  <div class="sc-bMCYpw fhagFe">{% for file in attachments %}<a class="lab-file-link" href="{{ url_for('download', file_id=file.id) }}"><i class="las la-paperclip"></i>{{ file.original_name }}</a>{% endfor %}</div>
-  <a class="go-list lab-go-list" href="{{ url_for('board', kind=kind) }}">목록으로</a>
+  <div class="sc-bMCYpw fhagFe">{% for file in attachments %}<a class="lab-file-link" href="{{ url_for('files.download', file_id=file.id) }}"><i class="las la-paperclip"></i>{{ file.original_name }}</a>{% endfor %}</div>
+  <a class="go-list lab-go-list" href="{{ url_for('board.board', kind=kind) }}">목록으로</a>
 </div></div></div>
 {% endblock %}

@@ -9,7 +9,7 @@
       <input id="board-file" type="file" name="file" aria-label="첨부파일" accept=".pdf,.txt,.zip,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.hwp,.hwpx,.rtf,.png,.jpg,.jpeg,.gif,.webp">
       <button type="button" data-file-picker="board-file"><span>업로드</span></button>
     </div></div></div></div>
-    <div class="sc-bDumWk gVLLeN"><a href="{{ url_for('board', kind=kind) }}">취소</a><button type="submit">게시글 등록</button></div>
+    <div class="sc-bDumWk gVLLeN"><a href="{{ url_for('board.board', kind=kind) }}">취소</a><button type="submit">게시글 등록</button></div>
   </div></div>
 </form></div>
 {% endblock %}

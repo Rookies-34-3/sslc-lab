@@ -12,6 +12,7 @@ from urllib.request import HTTPCookieProcessor, Request, build_opener
 from uuid import uuid4
 
 ROOT = Path(__file__).resolve().parents[1]
+APP = ROOT / "web" / "app"
 BASE = os.environ.get("TEST_BASE_URL", "http://127.0.0.1:8080")
 if urlparse(BASE).hostname not in {"127.0.0.1", "localhost"}:
     raise ValueError("These checks are limited to the local lab preview.")
@@ -152,7 +153,7 @@ class LabTests(unittest.TestCase):
                 self.assertIn("학생1".encode(), body)
                 self.assertNotIn(b"{{", body)
                 self.assertNotRegex(body, rb'(?:src|href)=[\'"]https?://')
-        reference = json.loads((ROOT / "reference_data.json").read_text(encoding="utf-8"))["problems"]
+        reference = json.loads((APP / "reference_data.json").read_text(encoding="utf-8"))["problems"]
         category = reference[0]["category"]
         _, body, _, _ = self.student.get("/my-class/pbl?" + urlencode({"category": category}))
         self.assertEqual(body.count(b"lab-pbl-card"), sum(item["category"] == category for item in reference))
@@ -162,13 +163,13 @@ class LabTests(unittest.TestCase):
         _, _, headers, _ = self.student.get("/my-class/pbl")
         self.assertEqual(headers["X-Content-Type-Options"], "nosniff")
         self.assertIn("script-src 'self'", headers["Content-Security-Policy"])
-        assets = json.loads((ROOT / "reference_assets.json").read_text(encoding="utf-8"))
+        assets = json.loads((APP / "reference_assets.json").read_text(encoding="utf-8"))
         for stylesheet in set(sum(assets["styles"].values(), [])):
             with self.subTest(stylesheet=stylesheet):
                 status, content, _, _ = self.student.get(stylesheet)
                 self.assertEqual(status, 200)
                 self.assertNotRegex(content, rb'url\([^)]*https?://')
-        for font in (ROOT / "static" / "reference").glob("*.woff2"):
+        for font in (APP / "static" / "reference").glob("*.woff2"):
             self.assertEqual(font.read_bytes()[:4], b"wOF2")
 
 

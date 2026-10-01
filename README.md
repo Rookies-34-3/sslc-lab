@@ -2,6 +2,36 @@
 
 제공된 SSLC MHTML 화면 자료를 바탕으로 만든 Flask 교육용 미러입니다. 현재 단계는 로그인, 공지사항, 학습게시판, PBL 파일 제출을 사용할 수 있는 기본 서비스입니다.
 
+## 코드 구조
+
+```text
+sslc-lab/
+├── compose.yaml
+├── web/
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   ├── SSLC.py                 # 실행 진입점
+│   └── app/
+│       ├── __init__.py          # 앱 생성, Blueprint 등록, 공통 화면·오류 처리
+│       ├── db.py                # DB 연결·쿼리, 가상 데이터 초기화
+│       ├── auth.py              # 로그인·로그아웃, 인증·CSRF 검사
+│       ├── board.py             # 공지사항·학습게시판
+│       ├── pbl.py               # PBL 목록·상세·제출
+│       ├── files.py             # 파일 저장·다운로드 권한 검사
+│       ├── templates/
+│       ├── static/
+│       ├── reference_assets.json
+│       └── reference_data.json
+├── db/init.sql
+├── nginx/nginx.conf
+├── internal_service.py
+├── docs/
+├── tools/
+└── tests/
+```
+
+`SSLC.py`에서 Flask 앱을 생성하며 Gunicorn은 `SSLC:app`을 사용합니다. 컨테이너 시작 시 `python SSLC.py --init-db`로 없는 가상 계정·공지사항만 추가합니다. 기능별 Blueprint로 나눴으며 기존 URL과 화면 구조는 유지합니다.
+
 ## 로컬 실행
 
 Docker Desktop의 Linux 컨테이너 모드와 Docker Engine 28 이상을 사용합니다. 환경 파일 생성에는 Python 3만 필요합니다.
@@ -44,7 +74,7 @@ PBL 제출 파일은 제출한 학생과 관리자만 다운로드할 수 있습
 
 ## 화면 자료
 
-`docs/`의 MHTML에서 CSS, 이미지, 공통 HTML 구조를 추출해 `static/reference/`와 `templates/reference/`에 저장했습니다. 원본 스크립트와 실제 계정 정보는 앱에 연결하지 않습니다. Noto Sans KR와 아이콘 폰트도 로컬에 저장해 실행 중 외부 사이트의 리소스를 요청하지 않습니다.
+`docs/`의 MHTML에서 CSS, 이미지, 공통 HTML 구조를 추출해 `web/app/static/reference/`와 `web/app/templates/reference/`에 저장했습니다. 원본 스크립트와 실제 계정 정보는 앱에 연결하지 않습니다. Noto Sans KR와 아이콘 폰트도 로컬에 저장해 실행 중 외부 사이트의 리소스를 요청하지 않습니다.
 
 상단 메뉴·로고·클래스 정보·배너·게시판·PBL 카드의 원본 스타일을 재사용합니다. 구현하지 않은 메뉴는 원본 배치를 유지하고 일부 링크에 `준비 중`을 표시합니다. 필요한 클릭 동작만 작은 JavaScript로 연결했습니다.
 
@@ -84,4 +114,4 @@ python -m unittest discover -s tests -v
 
 로그인·로그아웃, CSRF, 게시글 작성·검색·첨부파일, 공지 작성 권한, PBL 제출 파일의 사용자별 접근, 업로드 형식, 로컬 리소스를 확인합니다. 검증 과정에서 가상 게시글과 제출 파일이 추가됩니다. localhost에서만 실행하도록 제한되어 있습니다.
 
-주요 파일은 `app.py`, `compose.yaml`, `db/init.sql`, `templates/`, `static/app.css`, `static/app.js`입니다. 실행 중 필요한 Python 라이브러리는 Flask, PyMySQL, Gunicorn입니다.
+주요 파일은 `web/SSLC.py`, `web/app/`의 기능별 모듈, `compose.yaml`, `db/init.sql`, `web/app/templates/`, `web/app/static/app.css`, `web/app/static/app.js`입니다. 실행 중 필요한 Python 라이브러리는 Flask, PyMySQL, Gunicorn입니다.

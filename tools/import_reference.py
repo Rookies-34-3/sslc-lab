@@ -15,8 +15,9 @@ from urllib.request import Request, urlopen
 from bs4 import BeautifulSoup
 
 ROOT = Path(__file__).resolve().parents[1]
-ASSETS = ROOT / "static" / "reference"
-PARTIALS = ROOT / "templates" / "reference"
+APP = ROOT / "web" / "app"
+ASSETS = APP / "static" / "reference"
+PARTIALS = APP / "templates" / "reference"
 PAGES = {
     "login": "러닝클라우드 로그인 _ SSLC.mhtml",
     "notice": "공지사항.mhtml",
@@ -222,14 +223,14 @@ def main():
             "top_class": " ".join(card.select_one(".sc-EElJA").get("class", [])),
             "body_class": " ".join(card.find("h2").parent.get("class", [])),
         })
-    (ROOT / "reference_data.json").write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (APP / "reference_data.json").write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     styles = {}
     for key, (soup, _) in archives.items():
         styles[key] = list(dict.fromkeys(resources[link["href"]] for link in soup.select('head link[rel="stylesheet"]') if link.get("href") in resources))
     # Expose convenient paths without keeping real service URLs in browser markup.
     mapping = {urlsplit(url).path: local for url, local in resources.items() if url.startswith("https://lms.sslc.kr/")}
     manifest = {"styles": styles, "resources": mapping, "fonts": len(downloaded)}
-    (ROOT / "reference_assets.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (APP / "reference_assets.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Imported {len(data['problems'])} PBL cards, {len(data['notices'])} notice rows, and {len(list(ASSETS.iterdir()))} assets.")
 
 

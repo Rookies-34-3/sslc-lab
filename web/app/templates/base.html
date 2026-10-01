@@ -17,7 +17,7 @@
       {% include 'reference/header.html' %}
       <div id="user-menu" class="lab-user-menu" hidden>
         <p>{{ current_user.display_name }}</p><small>{{ current_user.username }}</small>
-        <form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">Signout</button></form>
+        <form method="post" action="{{ url_for('auth.logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">Signout</button></form>
       </div>
     {% endif %}
     <div class="render login">

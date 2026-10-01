@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="sc-hQQMGV BosHh"><div class="sc-cogdck dNrMjq">
+  <h1>{{ heading }}</h1>
+  <div class="sc-iGYsGe bZkXuQ">
+    <span>총 <b>{{ total }}</b>개</span>
+    <form class="sc-dkmUuB ljyNOK" method="get">
+      <input name="content" aria-label="게시글 검색" placeholder="검색어를 입력해주세요." value="{{ search }}" maxlength="200">
+      <button class="search-icon" type="submit" aria-label="검색"><img alt="" src="{{ ref('/icons/search_icon.png') }}"></button>
+    </form>
+  </div>
+  <div class="sc-kHhbVh kFWwZz"><table class="sc-ilsNdd hKODzA">
+    {% for post in posts %}<tbody><tr>
+      <td class="title"><a href="{{ url_for('board.post_detail', kind=kind, post_id=post.id) }}"><span>{{ post.title }}</span>{% if post.has_file %}<span class="file-icon"><img alt="첨부파일" src="{{ ref('/icons/appendix.png') }}"></span>{% endif %}</a></td>
+      <td class="author"><span>{{ post.display_name }}</span></td>
+      <td class="date"><span>{{ post.created_at.strftime('%Y-%m-%d') }}</span><span>{{ post.created_at.strftime('%H:%M') }}</span></td>
+      <td class="hits"><span><span class="hits-label">조회</span>{{ post.views }}</span></td>
+    </tr></tbody>{% else %}<tbody class="sc-frjntI iVOnAk"><tr><td>등록된 게시글이 없습니다.</td></tr></tbody>{% endfor %}
+  </table></div>
+  <div class="sc-fKDIaf kBwQgb">{% if kind == 'qna' or current_user.role == 'admin' %}<a class="sc-fifgRP jjeKnb" href="{{ url_for('board.write_post', kind=kind) }}">글 등록하기</a>{% endif %}</div>
+  <div class="sc-fKDIaf kBwQgb"><nav class="sc-dBmzty fyYpMW" aria-label="페이지"><div>
+    <a class="item left-item arrow double" href="{{ url_for('board.board', kind=kind, page=1, content=search) }}" aria-label="처음"><i class="left-arrow icon"></i></a>
+    <a class="item left-item arrow" href="{{ url_for('board.board', kind=kind, page=[1, page-1]|max, content=search) }}" aria-label="이전"><i class="left-arrow icon"></i></a>
+    {% for number in range([1, page-2]|max, [pages+1, page+3]|min) %}<a class="item {{ 'active' if number == page else '' }}" href="{{ url_for('board.board', kind=kind, page=number, content=search) }}" {% if number == page %}aria-current="page"{% endif %}>{{ number }}</a>{% endfor %}
+    <a class="item right-item arrow" href="{{ url_for('board.board', kind=kind, page=[pages, page+1]|min, content=search) }}" aria-label="다음"><i class="right-arrow icon"></i></a>
+    <a class="item right-item arrow double" href="{{ url_for('board.board', kind=kind, page=pages, content=search) }}" aria-label="마지막"><i class="right-arrow icon"></i></a>
+  </div></nav></div>
+</div></div>
+{% endblock %}

@@ -31,7 +31,9 @@ services:
       retries: 3
 
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: web/Dockerfile
     image: sslc-lab-web:local
     environment:
       SECRET_KEY: ${SECRET_KEY:?Run python tools/setup_env.py first}
