@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="lab-support-toolbar"><span>총 <b>{{ rows|length }}</b>개</span><form method="get"><input name="content" aria-label="{{ page_title }} 검색" placeholder="검색어를 입력해주세요." value="{{ search }}" maxlength="200"><button type="submit" aria-label="검색"><i class="las la-search"></i></button></form></div>
+<div class="lab-support-list">
+  {% for item in rows %}<a class="lab-support-row" href="{{ url_for('support_detail', section=section, item_id=item.id) }}"><strong>{{ item.title }}</strong><span class="lab-file-cell">{% if item.has_file|default(false) %}<i class="las la-file-alt" aria-label="첨부파일 있음"></i>{% endif %}</span><span>{{ item.author }}</span><time>{{ item.created_at }}</time><small>조회{{ item.views }}</small></a>{% else %}<p class="lab-empty">검색 결과가 없습니다.</p>{% endfor %}
+</div>
+{% endblock %}

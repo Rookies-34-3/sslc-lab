@@ -1,0 +1,6 @@
+<aside class="lab-customer-nav" aria-label="학습지원 메뉴">
+  <a class="{{ 'active' if customer_active == 'resources' else '' }}" href="{{ url_for('resources') }}"><i class="las la-book"></i><span>자료실</span></a>
+  <a class="{{ 'active' if customer_active == 'faq' else '' }}" href="{{ url_for('faq') }}"><i class="las la-comment-alt"></i><span>FAQ</span></a>
+  <a class="{{ 'active' if customer_active == 'contact' else '' }}" href="{{ url_for('inquiries') }}"><i class="las la-envelope-open"></i><span>문의하기</span></a>
+  <a data-unavailable="true" href="#"><i class="las la-clipboard-list"></i><span>출발! 루키즈</span></a>
+</aside>

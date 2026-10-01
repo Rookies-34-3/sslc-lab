@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="sc-hQQMGV BosHh"><div class="sc-cogdck dNrMjq">
+  <h1>과제</h1>
+  <div class="sc-iGYsGe bZkXuQ"><span>총 <b>{{ tasks|length }}</b>개</span><form class="sc-dkmUuB ljyNOK" method="get"><input name="content" aria-label="과제 검색" placeholder="검색어를 입력해주세요." value="{{ search }}" maxlength="200"><button class="search-icon" type="submit" aria-label="검색"><img alt="" src="{{ ref('/icons/search_icon.png') }}"></button></form></div>
+  <div class="sc-kHhbVh kFWwZz"><table class="sc-hUsbtx dWuuqB">
+    {% for task in tasks %}<tbody><tr>
+      <td class="title"><a href="{{ url_for('task_detail', task_id=task.id) }}"><span>{{ task.title }}{% if task.id in submitted %}<span class="lab-task-done">제출 완료</span>{% endif %}</span><span class="file-icon"><img alt="첨부파일" src="{{ ref('/icons/appendix.png') }}"></span></a></td>
+      <td class="submitDate"><span>{{ task.submit_period }}</span></td><td class="author"><span>{{ task.author }}</span></td>
+      <td class="date"><span>{{ task.created_at[:10] }}</span><span>{{ task.created_at[11:] }}</span></td><td class="hits"><span><span class="hits-label">조회</span>0</span></td>
+    </tr></tbody>{% else %}<tbody><tr><td class="lab-empty">등록된 과제가 없습니다.</td></tr></tbody>{% endfor %}
+  </table></div>
+</div></div>
+{% endblock %}

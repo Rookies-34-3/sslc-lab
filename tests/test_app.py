@@ -133,6 +133,48 @@ class LabTests(unittest.TestCase):
         self.assertEqual(admin.get(download)[:2], (200, content))
         self.assertEqual(Browser().get(download)[3], "/login")
 
+    def test_task_upload_owner_permissions(self):
+        path = "/my-class/board/task/1"
+        content = b"Assignment local integration check."
+        filename = "task-check-" + uuid4().hex[:8] + ".txt"
+        status, body, _, location = self.student.upload(path, {"csrf_token": self.student.token(path)}, "taskResult", filename, content)
+        self.assertEqual((status, location), (200, path))
+        self.assertIn(filename.encode(), body)
+        download = re.findall(rb'href="(/download/\d+)"', body)[0].decode()
+        self.assertEqual(self.student.get(download)[:2], (200, content))
+        other = Browser()
+        other.login("student2")
+        self.assertEqual(other.get(download)[0], 403)
+        admin = Browser()
+        admin.login("admin")
+        self.assertEqual(admin.get(download)[:2], (200, content))
+
+    def test_support_inquiry_and_profile_permissions(self):
+        for path, text in [("/customer", "국가 사이버보안 기본지침"), ("/customer/faq", "교육 과정 중 근로")]:
+            status, body, _, _ = self.student.get(path)
+            self.assertEqual(status, 200)
+            self.assertIn(text.encode(), body)
+
+        email = "student1-" + uuid4().hex[:8] + "@example.test"
+        status, body, _, location = self.student.form("/mypage/my-information", {"csrf_token": self.student.token("/mypage/my-information"), "email": email, "phone": "010-1234-5678"})
+        self.assertEqual((status, location), (200, "/mypage/my-information"))
+        self.assertIn(email.encode(), body)
+
+        title = "권한 분리 문의 " + uuid4().hex[:8]
+        status, body, _, location = self.student.form("/customer/contact/write", {"csrf_token": self.student.token("/customer/contact/write"), "category": "기타", "title": title, "body": "작성자와 관리자만 확인하는 문의입니다."})
+        self.assertEqual(status, 200)
+        self.assertRegex(location, r"/customer/contact/\d+$")
+        self.assertIn(title.encode(), body)
+        other = Browser()
+        other.login("student2")
+        self.assertEqual(other.get(location)[0], 403)
+        self.assertNotIn(title.encode(), other.get("/customer/contact")[1])
+        self.assertNotIn(email.encode(), other.get("/mypage/my-information")[1])
+        admin = Browser()
+        admin.login("admin")
+        self.assertEqual(admin.get(location)[0], 200)
+        self.assertEqual(Browser().get(location)[3], "/login")
+
     def test_upload_validation(self):
         path = "/my-class/pbl/1"
         for name, content in [("empty.txt", b""), ("example.html", b"ordinary text")]:
@@ -140,18 +182,22 @@ class LabTests(unittest.TestCase):
                 self.assertEqual(self.student.upload(path, {"csrf_token": self.student.token(path)}, "taskResult", name, content)[0], 400)
 
     def test_unknown_pages(self):
-        for path in ["/my-class/pbl/99999", "/my-class/board/unknown", "/download/99999"]:
+        for path in ["/my-class/pbl/99999", "/my-class/board/task/99999", "/my-class/board/unknown", "/customer/resources/99999", "/customer/faq/99999", "/customer/contact/99999", "/download/99999"]:
             with self.subTest(path=path):
                 self.assertEqual(self.student.get(path)[0], 404)
 
     def test_pages_and_categories(self):
-        for path in ["/my-class/pbl", "/my-class/pbl/1", "/my-class/board/notice", "/my-class/board/qna", "/my-class/board/write/qna"]:
+        for path in ["/", "/index", "/my-class/pbl", "/my-class/pbl/1", "/my-class/board/notice", "/my-class/board/task", "/my-class/board/task/1", "/my-class/board/qna", "/my-class/board/write/qna", "/customer", "/customer/faq", "/customer/contact", "/customer/contact/write", "/mypage/my-information"]:
             with self.subTest(path=path):
                 status, body, _, _ = self.student.get(path)
                 self.assertEqual(status, 200)
                 self.assertIn("학생1".encode(), body)
                 self.assertNotIn(b"{{", body)
                 self.assertNotRegex(body, rb'(?:src|href)=[\'"]https?://')
+        _, index_body, _, _ = self.student.get("/")
+        self.assertIn("현재 구현된 기능".encode(), index_body)
+        for href in [b'/my-class/board/notice', b'/my-class/board/task', b'/my-class/board/qna', b'/my-class/pbl', b'/customer', b'/customer/faq', b'/customer/contact', b'/mypage/my-information']:
+            self.assertIn(b'href="' + href + b'"', index_body)
         reference = json.loads((ROOT / "reference_data.json").read_text(encoding="utf-8"))["problems"]
         category = reference[0]["category"]
         _, body, _, _ = self.student.get("/my-class/pbl?" + urlencode({"category": category}))

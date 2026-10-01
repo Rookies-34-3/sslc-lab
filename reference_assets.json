@@ -18,6 +18,16 @@
       "/static/reference/f5037e38bed91a47616d.css",
       "/static/reference/5bbe1e16a4f897ddff1f.css"
     ],
+    "task": [
+      "/static/reference/5ddf910f8ba8fc2d945e.css",
+      "/static/reference/65d87ce0d1e829912afd.css",
+      "/static/reference/74cf25769119e22a42d5.css",
+      "/static/reference/ac0fb2758d638fe78e15.css",
+      "/static/reference/4143afa2820df8a2a062.css",
+      "/static/reference/11155dadca3b8113bf29.css",
+      "/static/reference/f5037e38bed91a47616d.css",
+      "/static/reference/5bbe1e16a4f897ddff1f.css"
+    ],
     "qna": [
       "/static/reference/5ddf910f8ba8fc2d945e.css",
       "/static/reference/65d87ce0d1e829912afd.css",
@@ -68,6 +78,16 @@
       "/static/reference/11155dadca3b8113bf29.css",
       "/static/reference/f5037e38bed91a47616d.css",
       "/static/reference/5bbe1e16a4f897ddff1f.css"
+    ],
+    "mypage": [
+      "/static/reference/5ddf910f8ba8fc2d945e.css",
+      "/static/reference/65d87ce0d1e829912afd.css",
+      "/static/reference/2b22f725ac72570a1a5e.css",
+      "/static/reference/ac0fb2758d638fe78e15.css",
+      "/static/reference/4143afa2820df8a2a062.css",
+      "/static/reference/11155dadca3b8113bf29.css",
+      "/static/reference/f5037e38bed91a47616d.css",
+      "/static/reference/5bbe1e16a4f897ddff1f.css"
     ]
   },
   "resources": {
@@ -83,6 +103,7 @@
     "/icons/after_arrow01.png": "/static/reference/85431bb5ace308a6ea2e.png",
     "/icons/before_arrow01.png": "/static/reference/13b02ed942b68c44d467.png",
     "/icons/before_arrow02.png": "/static/reference/8a88d4236aa4df46457a.png",
+    "/icons/green_check.png": "/static/reference/72b213c202b9c8f19255.png",
     "/assets/icons/privacy.png": "/static/reference/e67617a8d7a5f8e005ae.png",
     "/assets/icons/alarm-clock.png": "/static/reference/aaf7ad565dc17541f16c.png",
     "/main/pbl-file/559/image/20260722_131203_%ED%8C%8C%EC%9D%B4%EC%8D%ACpbl1%EB%B2%88%EB%AC%B8%EC%A0%9C2.jpg": "/static/reference/686d665e79a915b05658.jpg",

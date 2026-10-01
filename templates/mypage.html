@@ -1,0 +1,4 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="lab-profile-card"><div class="lab-profile-tabs"><span class="active">회원정보 수정하기</span><span>비밀번호 변경하기</span></div><form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label>아이디 (변경 불가능)<input value="{{ current_user.username }}" disabled></label><label>이름 (변경 불가능)<input value="{{ current_user.display_name }}" disabled></label><label>이메일<input type="email" name="email" value="{{ profile.email }}" maxlength="254" autocomplete="email"></label><label>전화번호를 입력해주세요. ex)010-0000-0000<input name="phone" value="{{ profile.phone }}" maxlength="20" pattern="[0-9-]*" autocomplete="tel"></label><button type="submit">회원정보 변경</button></form></section>
+{% endblock %}

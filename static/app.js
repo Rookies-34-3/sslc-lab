@@ -1,13 +1,16 @@
 document.addEventListener("DOMContentLoaded", () => {
   const active = document.body.dataset.active;
-  const selected = {notice: "/my-class/board/notice", qna: "/my-class/board/qna", pbl: "/my-class/pbl"}[active];
+  const selected = {index: "/", notice: "/my-class/board/notice", task: "/my-class/board/task", qna: "/my-class/board/qna", pbl: "/my-class/pbl"}[active];
   document.querySelectorAll(".PuwVp > a").forEach(link => {
     link.firstElementChild?.classList.toggle("selectedTab", link.getAttribute("href") === selected);
   });
   document.querySelectorAll("[data-unavailable]").forEach(link => {
     link.setAttribute("aria-disabled", "true");
-    link.title = "준비 중";
-    link.addEventListener("click", event => event.preventDefault());
+    link.title = "미구현입니다.";
+    link.addEventListener("click", event => {
+      event.preventDefault();
+      window.alert("미구현입니다.");
+    });
   });
   document.querySelectorAll("[data-top], .bcLUzT").forEach(button => {
     button.addEventListener("click", () => window.scrollTo({top: 0, behavior: "smooth"}));

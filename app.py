@@ -3,6 +3,7 @@ import hmac
 import json
 import math
 import os
+import re
 import secrets
 import sys
 from datetime import timedelta
@@ -19,8 +20,12 @@ ROOT = Path(__file__).resolve().parent                                          
 ASSETS = json.loads((ROOT / "reference_assets.json").read_text(encoding="utf-8"))       #asset로드
 REFERENCE = json.loads((ROOT / "reference_data.json").read_text(encoding="utf-8"))      #
 PROBLEMS = {item["id"]: item for item in REFERENCE["problems"]}                         #
+TASKS = {item["id"]: item for item in REFERENCE["tasks"]}
 UPLOADS = Path(os.environ.get("UPLOAD_DIR", ROOT / "instance" / "uploads"))             #업로드 저장 파일 위치 
 EXTENSIONS = {"pdf", "txt", "zip", "doc", "docx", "ppt", "pptx", "xls", "xlsx", "hwp", "hwpx", "rtf", "png", "jpg", "jpeg", "gif", "webp"}
+ASSIGNMENT_FILE_OFFSET = 1_000_000
+INQUIRY_FILE_OFFSET = 2_000_000
+INQUIRY_CATEGORIES = ("출결문의", "온라인 교육", "오프라인 교육", "PBL/과제", "프로젝트", "기타")
 
 app = Flask(__name__)
 app.config.update(
@@ -108,11 +113,26 @@ def render_page(template, asset_page, active, **context):
     return render_template(template, asset_page=asset_page, active=active, **context)
 
 
-@app.get("/")
 @app.get("/my-class")
-def index():
-# 루트 인덱스 
+def my_class_root():
     return redirect(url_for("board", kind="notice") if g.user else url_for("login"))
+
+
+@app.get("/")
+@app.get("/index")
+@login_required
+def feature_index():
+    links = [
+        ("공지사항", url_for("board", kind="notice"), "공지 검색과 상세 조회"),
+        ("과제", url_for("task_board"), "과제 상세와 결과 파일 제출"),
+        ("학습게시판", url_for("board", kind="qna"), "강의 질문 작성과 첨부파일"),
+        ("PBL", url_for("pbl"), "문제 목록, 상세와 결과 파일 제출"),
+        ("자료실", url_for("resources"), "교육 자료 목록과 검색"),
+        ("FAQ", url_for("faq"), "자주 묻는 질문 목록과 검색"),
+        ("문의하기", url_for("inquiries"), "개인 문의 작성, 조회와 관리자 답변"),
+        ("마이페이지", url_for("mypage"), "이메일과 전화번호 수정"),
+    ]
+    return render_page("index.html", "notice", "index", links=links)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -142,6 +162,40 @@ def logout():
 @login_required
 def board_root():
     return redirect(url_for("board", kind="qna"))
+
+
+@app.get("/my-class/board/task")
+@login_required
+def task_board():
+    search = request.args.get("content", "").strip()[:200]
+    tasks = [task for task in TASKS.values() if not search or search.lower() in task["title"].lower()]
+    submitted = {
+        row["problem_id"] - ASSIGNMENT_FILE_OFFSET
+        for row in query(
+            "SELECT DISTINCT problem_id FROM files WHERE owner_id=%s AND problem_id BETWEEN %s AND %s",
+            (g.user["id"], ASSIGNMENT_FILE_OFFSET, ASSIGNMENT_FILE_OFFSET + 999_999),
+        )
+    }
+    return render_page("task_board.html", "task", "task", tasks=tasks, submitted=submitted, search=search)
+
+
+@app.route("/my-class/board/task/<int:task_id>", methods=["GET", "POST"])
+@login_required
+def task_detail(task_id):
+    task = TASKS.get(task_id)
+    if not task:
+        abort(404)
+    submission_key = ASSIGNMENT_FILE_OFFSET + task_id
+    if request.method == "POST":
+        if not save_upload(request.files.get("taskResult"), problem_id=submission_key):
+            abort(400, description="제출할 파일을 선택해주세요.")
+        flash("과제 파일 제출을 완료했어요.", "success")
+        return redirect(url_for("task_detail", task_id=task_id))
+    submissions = query(
+        "SELECT id, original_name, created_at FROM files WHERE owner_id=%s AND problem_id=%s ORDER BY id DESC",
+        (g.user["id"], submission_key),
+    )
+    return render_page("task.html", "task", "task", task=task, submissions=submissions)
 
 
 def check_kind(kind):
@@ -266,6 +320,134 @@ def reference_problem(group_id, reference_id):
     return redirect(url_for("problem_detail", problem_id=1))
 
 
+def support_rows(key):
+    search = request.args.get("content", "").strip()[:200]
+    rows = [row for row in REFERENCE[key] if not search or search.lower() in row["title"].lower()]
+    return rows, search
+
+
+@app.get("/customer")
+@login_required
+def resources():
+    rows, search = support_rows("resources")
+    return render_page("support_list.html", "task", "support", page_title="자료실", customer_active="resources", rows=rows, search=search, section="resources")
+
+
+@app.get("/customer/faq")
+@login_required
+def faq():
+    rows, search = support_rows("faqs")
+    return render_page("support_list.html", "task", "support", page_title="FAQ", customer_active="faq", rows=rows, search=search, section="faq")
+
+
+@app.get("/customer/<section>/<int:item_id>")
+@login_required
+def support_detail(section, item_id):
+    key = {"resources": "resources", "faq": "faqs"}.get(section)
+    if not key:
+        abort(404)
+    item = next((row for row in REFERENCE[key] if row["id"] == item_id), None)
+    if not item:
+        abort(404)
+    return render_page("support_detail.html", "task", "support", page_title="자료실" if key == "resources" else "FAQ", customer_active="resources" if key == "resources" else "faq", item=item, section=section)
+
+
+def get_inquiry(inquiry_id):
+    inquiry = query(
+        "SELECT i.*, u.display_name FROM inquiries i JOIN users u ON u.id=i.owner_id WHERE i.id=%s",
+        (inquiry_id,), one=True,
+    )
+    if not inquiry:
+        abort(404)
+    if g.user["role"] != "admin" and inquiry["owner_id"] != g.user["id"]:
+        abort(403)
+    return inquiry
+
+
+@app.get("/customer/contact")
+@login_required
+def inquiries():
+    search = request.args.get("content", "").strip()[:200]
+    category = request.args.get("category", "")
+    if category not in ("", *INQUIRY_CATEGORIES):
+        abort(400, description="문의 분류를 확인해주세요.")
+    clauses = ["(i.title LIKE %s OR i.body LIKE %s)"]
+    values = ["%" + search + "%", "%" + search + "%"]
+    if category:
+        clauses.append("i.category=%s")
+        values.append(category)
+    if g.user["role"] != "admin":
+        clauses.append("i.owner_id=%s")
+        values.append(g.user["id"])
+    rows = query(
+        "SELECT i.*, u.display_name, EXISTS(SELECT 1 FROM files f WHERE f.problem_id=i.id+%s) AS has_file "
+        "FROM inquiries i JOIN users u ON u.id=i.owner_id WHERE " + " AND ".join(clauses) + " ORDER BY i.created_at DESC, i.id DESC",
+        (INQUIRY_FILE_OFFSET, *values),
+    )
+    return render_page("inquiries.html", "task", "support", page_title="문의하기", customer_active="contact", rows=rows, search=search, category=category, categories=INQUIRY_CATEGORIES)
+
+
+@app.route("/customer/contact/write", methods=["GET", "POST"])
+@login_required
+def write_inquiry():
+    if request.method == "POST":
+        category = request.form.get("category", "")
+        title = request.form.get("title", "").strip()
+        body = request.form.get("body", "").strip()
+        if category not in INQUIRY_CATEGORIES or not title or len(title) > 200 or not body or len(body) > 10000:
+            abort(400, description="분류, 제목과 내용을 확인해주세요.")
+        db().begin()
+        try:
+            with db().cursor() as cursor:
+                cursor.execute("INSERT INTO inquiries (owner_id, category, title, body) VALUES (%s,%s,%s,%s)", (g.user["id"], category, title, body))
+                inquiry_id = cursor.lastrowid
+            save_upload(request.files.get("file"), problem_id=INQUIRY_FILE_OFFSET + inquiry_id)
+            db().commit()
+        except BaseException:
+            db().rollback()
+            raise
+        return redirect(url_for("inquiry_detail", inquiry_id=inquiry_id))
+    return render_page("inquiry_write.html", "task", "support", page_title="문의하기", customer_active="contact", categories=INQUIRY_CATEGORIES)
+
+
+@app.route("/customer/contact/<int:inquiry_id>", methods=["GET", "POST"])
+@login_required
+def inquiry_detail(inquiry_id):
+    inquiry = get_inquiry(inquiry_id)
+    if request.method == "POST":
+        if g.user["role"] != "admin":
+            abort(403)
+        answer = request.form.get("answer", "").strip()
+        if not answer or len(answer) > 10000:
+            abort(400, description="답변 내용을 입력해주세요.")
+        query("UPDATE inquiries SET answer=%s, answered_at=NOW() WHERE id=%s", (answer, inquiry_id))
+        flash("문의 답변을 등록했어요.", "success")
+        return redirect(url_for("inquiry_detail", inquiry_id=inquiry_id))
+    attachments = query("SELECT id, original_name FROM files WHERE problem_id=%s ORDER BY id", (INQUIRY_FILE_OFFSET + inquiry_id,))
+    return render_page("inquiry_detail.html", "task", "support", page_title="문의하기", customer_active="contact", inquiry=inquiry, attachments=attachments)
+
+
+@app.route("/mypage/my-information", methods=["GET", "POST"])
+@login_required
+def mypage():
+    if request.method == "POST":
+        email = request.form.get("email", "").strip()
+        phone = request.form.get("phone", "").strip()
+        if email and (len(email) > 254 or email.count("@") != 1 or any(char.isspace() for char in email)):
+            abort(400, description="이메일 주소를 확인해주세요.")
+        if not re.fullmatch(r"[0-9-]{0,20}", phone):
+            abort(400, description="전화번호는 숫자와 하이픈만 입력해주세요.")
+        query(
+            "INSERT INTO user_profiles (user_id, email, phone) VALUES (%s,%s,%s) "
+            "ON DUPLICATE KEY UPDATE email=VALUES(email), phone=VALUES(phone)",
+            (g.user["id"], email, phone),
+        )
+        flash("회원정보를 변경했어요.", "success")
+        return redirect(url_for("mypage"))
+    profile = query("SELECT email, phone FROM user_profiles WHERE user_id=%s", (g.user["id"],), one=True) or {"email": "", "phone": ""}
+    return render_page("mypage.html", "mypage", "mypage", page_title="내 정보 관리", profile=profile)
+
+
 @app.get("/download/<int:file_id>")
 @login_required
 def download(file_id):
@@ -305,6 +487,16 @@ def seed_data():
         for notice in REFERENCE["notices"]:
             body = "안녕하세요. 교육운영사무국입니다.\n\n" + notice["title"] + "\n\n이 게시글은 교육용 SSLC Lab의 가상 공지입니다.\nPBL 메뉴에서 문제를 확인하고 결과 파일을 제출해주세요.\n학습게시판에서는 강의 질문과 첨부파일을 등록할 수 있습니다.\n\n감사합니다."
             query("INSERT INTO posts (kind, author_id, title, body, created_at) VALUES ('notice',%s,%s,%s,%s)", (admin_id, notice["title"], body, notice["created_at"]))
+    for username in ("student1", "student2", "admin"):
+        user = query("SELECT id FROM users WHERE username=%s", (username,), one=True)
+        if not query("SELECT user_id FROM user_profiles WHERE user_id=%s", (user["id"],), one=True):
+            query("INSERT INTO user_profiles (user_id, email, phone) VALUES (%s,%s,%s)", (user["id"], username + "@example.test", "010-0000-0000"))
+    if not query("SELECT id FROM inquiries LIMIT 1", one=True):
+        student1 = query("SELECT id FROM users WHERE username='student1'", one=True)["id"]
+        student2 = query("SELECT id FROM users WHERE username='student2'", one=True)["id"]
+        query("INSERT INTO inquiries (owner_id, category, title, body, answer, answered_at) VALUES (%s,'PBL/과제','클라우드 보안 PBL 제출 문의','제출 파일 형식을 확인하고 싶습니다.','PDF 또는 ZIP 형식으로 제출해주세요.',NOW())", (student1,))
+        query("INSERT INTO inquiries (owner_id, category, title, body) VALUES (%s,'기타','교육 평가 관련 문의','교육 평가 기준을 확인하고 싶습니다.')", (student1,))
+        query("INSERT INTO inquiries (owner_id, category, title, body, answer, answered_at) VALUES (%s,'출결문의','출결확인서 발급 문의','출결확인서 발급 절차가 궁금합니다.','교육운영사무국으로 문의해주세요.',NOW())", (student2,))
 
 
 # flask main 함수

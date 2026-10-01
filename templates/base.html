@@ -17,13 +17,18 @@
       {% include 'reference/header.html' %}
       <div id="user-menu" class="lab-user-menu" hidden>
         <p>{{ current_user.display_name }}</p><small>{{ current_user.username }}</small>
+        <a class="lab-mypage-link" href="{{ url_for('mypage') }}">내 정보 관리</a>
         <form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">Signout</button></form>
       </div>
     {% endif %}
     <div class="render login">
-      {% if current_user %}{% include 'reference/course.html' %}{% include 'reference/nav.html' %}{% endif %}
+      {% if page_title %}<div class="lab-page-heading"><h1>{{ page_title }}</h1></div>{% elif current_user %}{% include 'reference/course.html' %}{% include 'reference/nav.html' %}{% endif %}
       {% for category, message in get_flashed_messages(with_categories=true) %}<div class="lab-flash {{ category }}" role="status">{{ message }}</div>{% endfor %}
-      <main class="sc-kzwkWb hrpgQB"><div class="sc-dFSzXC gPXucV">{% block content %}{% endblock %}</div></main>
+      <main class="{{ 'lab-standalone-main' if active in ['support', 'mypage'] else 'sc-kzwkWb hrpgQB' }}">
+        {% if active == 'support' %}<div class="lab-customer-layout">{% include 'customer_nav.html' %}<section class="lab-customer-content">{% elif active == 'mypage' %}<div class="lab-mypage-layout">{% else %}<div class="sc-dFSzXC gPXucV">{% endif %}
+        {% block content %}{% endblock %}
+        {% if active == 'support' %}</section></div>{% else %}</div>{% endif %}
+      </main>
     </div>
     {% if current_user %}{% include 'reference/footer.html' %}{% endif %}
     <button type="button" class="sc-cVzyXs bcLUzT" data-top><span>⌃ TOP</span></button>

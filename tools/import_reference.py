@@ -20,21 +20,46 @@ PARTIALS = ROOT / "templates" / "reference"
 PAGES = {
     "login": "러닝클라우드 로그인 _ SSLC.mhtml",
     "notice": "공지사항.mhtml",
+    "task": "과제.mhtml",
     "qna": "학습 게시판.mhtml",
     "write": "글작성.mhtml",
     "detail": "SSLC공지사항 내용.mhtml",
     "pbl": "pbl.mhtml",
     "problem": "pbl에서 문제.mhtml",
+    "mypage": "마이페이지.mhtml",
 }
 CSS_URL = re.compile(r"url\(\s*(['\"]?)(.*?)\1\s*\)")
 ACTIVE_PATHS = {
+    "/my-class/roadmap": "/",
     "/my-class": "/my-class/board/notice",
     "/my-class/board": "/my-class/board/qna",
     "/my-class/board/notice": "/my-class/board/notice",
+    "/my-class/board/task": "/my-class/board/task",
     "/my-class/board/qna": "/my-class/board/qna",
     "/my-class/board/write/qna": "/my-class/board/write/qna",
     "/my-class/pbl": "/my-class/pbl",
+    "/customer": "/customer",
+    "/customer/faq": "/customer/faq",
+    "/customer/contact": "/customer/contact",
+    "/mypage/my-information": "/mypage/my-information",
 }
+SUPPORT_RESOURCES = [
+    {"id": 1, "title": "[국가정보원] 국가 사이버보안 기본지침", "author": "관리자1", "created_at": "2026-07-10 12:12", "views": 314, "has_file": True},
+    {"id": 2, "title": "[과기정통부·KISA] AI 보안 레드티밍 가이드", "author": "관리자1", "created_at": "2026-07-10 12:09", "views": 242, "has_file": True},
+    {"id": 3, "title": "[과기정통부·KISA] AI 보안 위협 대응 매뉴얼", "author": "관리자1", "created_at": "2026-07-10 12:06", "views": 124, "has_file": True},
+    {"id": 4, "title": "교육 평가 기준(생성형AI활용 사이버보안 전문인력 양성과정 33기 이후 기수부터 해당)", "author": "관리자", "created_at": "2026-06-05 16:03", "views": 1074, "has_file": False},
+    {"id": 5, "title": "교육 평가 기준(클라우드기반 스마트융합보안과정 32기 이후 기수부터 해당)", "author": "관리자", "created_at": "2026-04-22 10:06", "views": 1362, "has_file": False},
+    {"id": 6, "title": "SSLC 사용 가이드", "author": "관리자", "created_at": "2025-09-09 09:54", "views": 603, "has_file": True},
+    {"id": 7, "title": "PBL 안내", "author": "관리자", "created_at": "2025-06-10 10:38", "views": 2092, "has_file": False},
+]
+SUPPORT_FAQS = [
+    {"id": 1, "title": "교육 과정 중 근로를 해도 괜찮을까요?", "author": "관리자", "created_at": "2024-09-21 15:21", "views": 754},
+    {"id": 2, "title": "공가 (또는 병가) 신청을 했는데, HRD-Net에는 지각/결석/조퇴로 뜹니다. 공가 신청이 안 된 건가요?", "author": "관리자", "created_at": "2024-09-21 15:20", "views": 497},
+    {"id": 3, "title": "코로나19 확진 시, 출결 인정은 어떻게 되나요?", "author": "관리자", "created_at": "2024-09-21 14:54", "views": 180},
+    {"id": 4, "title": "상담 신청은 어디서 하나요?", "author": "매니저2", "created_at": "2024-07-08 14:35", "views": 231},
+    {"id": 5, "title": "평가 기준은 어떻게 되나요?", "author": "매니저2", "created_at": "2024-07-03 09:49", "views": 571},
+    {"id": 6, "title": "노트북이 멈췄습니다. 재부팅이 안돼요.", "author": "매니저2", "created_at": "2024-07-02 10:06", "views": 316},
+]
 
 
 def read_archive(path):
@@ -180,7 +205,7 @@ def main():
     nav = notice.select_one(".gGhjif")
     for selected in nav.select(".selectedTab"):
         selected["class"] = []
-    save("nav.html", clean(nav))
+    save("nav.html", clean(nav).replace("<span>로드맵</span>", "<span>인덱스</span>"))
     save("footer.html", clean(notice.select_one(".jgPiCh")))
 
     login = archives["login"][0].select_one("#root")
@@ -196,11 +221,24 @@ def main():
     problem_body = archives["problem"][0].select_one(".jUVhzP")
     save("problem_body.html", clean(problem_body))
 
-    data = {"notices": [], "problems": []}
+    data = {"notices": [], "problems": [], "tasks": [], "resources": SUPPORT_RESOURCES, "faqs": SUPPORT_FAQS}
     for row in notice.select("table tr"):
         cells = row.find_all("td")
         if len(cells) == 4:
             data["notices"].append({"title": cells[0].find("span").get_text(strip=True), "created_at": cells[2].get_text(" ", strip=True)})
+    for index, row in enumerate(archives["task"][0].select("table tr"), 1):
+        title = row.select_one("td.title > span")
+        period = row.select_one("td.submitDate")
+        author = row.select_one("td.author")
+        created = row.select_one("td.date")
+        if title and period and author and created:
+            data["tasks"].append({
+                "id": index,
+                "title": title.get_text(strip=True),
+                "submit_period": period.get_text(" ", strip=True),
+                "author": author.get_text(strip=True),
+                "created_at": created.get_text(" ", strip=True),
+            })
     for index, card in enumerate(archives["pbl"][0].select(".sc-hyhWHZ"), 1):
         title = card.select("h2 p")
         if len(title) < 2:
@@ -230,7 +268,7 @@ def main():
     mapping = {urlsplit(url).path: local for url, local in resources.items() if url.startswith("https://lms.sslc.kr/")}
     manifest = {"styles": styles, "resources": mapping, "fonts": len(downloaded)}
     (ROOT / "reference_assets.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"Imported {len(data['problems'])} PBL cards, {len(data['notices'])} notice rows, and {len(list(ASSETS.iterdir()))} assets.")
+    print(f"Imported {len(data['problems'])} PBL cards, {len(data['notices'])} notices, {len(data['tasks'])} tasks, and {len(list(ASSETS.iterdir()))} assets.")
 
 
 if __name__ == "__main__":

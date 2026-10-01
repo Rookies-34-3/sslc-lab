@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS user_profiles (
+    user_id INT UNSIGNED PRIMARY KEY,
+    email VARCHAR(254) NOT NULL DEFAULT '',
+    phone VARCHAR(20) NOT NULL DEFAULT '',
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS inquiries (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    owner_id INT UNSIGNED NOT NULL,
+    category VARCHAR(30) NOT NULL DEFAULT '기타',
+    title VARCHAR(200) NOT NULL,
+    body TEXT NOT NULL,
+    answer TEXT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    answered_at DATETIME NULL,
+    FOREIGN KEY (owner_id) REFERENCES users(id),
+    INDEX owner_created (owner_id, created_at, id)
+) ENGINE=InnoDB;

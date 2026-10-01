@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="lab-index">
+  <h1>현재 구현된 기능</h1>
+  <p>현재 구현된 화면으로 바로 이동할 수 있습니다.</p>
+  <div class="lab-index-grid">
+    {% for label, href, description in links %}
+    <a class="lab-index-card" href="{{ href }}">
+      <strong>{{ label }}</strong>
+      <span>{{ description }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

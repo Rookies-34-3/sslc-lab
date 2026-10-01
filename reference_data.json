@@ -474,5 +474,116 @@
       "top_class": "sc-EElJA gSMorh",
       "body_class": "sc-hqUaMi eCdnty"
     }
+  ],
+  "tasks": [
+    {
+      "id": 1,
+      "title": "[현장실습] 현장실습보고서",
+      "submit_period": "09-03 ~ 09-07",
+      "author": "강사1",
+      "created_at": "2026-08-27 15:58"
+    }
+  ],
+  "resources": [
+    {
+      "id": 1,
+      "title": "[국가정보원] 국가 사이버보안 기본지침",
+      "author": "관리자1",
+      "created_at": "2026-07-10 12:12",
+      "views": 314,
+      "has_file": true
+    },
+    {
+      "id": 2,
+      "title": "[과기정통부·KISA] AI 보안 레드티밍 가이드",
+      "author": "관리자1",
+      "created_at": "2026-07-10 12:09",
+      "views": 242,
+      "has_file": true
+    },
+    {
+      "id": 3,
+      "title": "[과기정통부·KISA] AI 보안 위협 대응 매뉴얼",
+      "author": "관리자1",
+      "created_at": "2026-07-10 12:06",
+      "views": 124,
+      "has_file": true
+    },
+    {
+      "id": 4,
+      "title": "교육 평가 기준(생성형AI활용 사이버보안 전문인력 양성과정 33기 이후 기수부터 해당)",
+      "author": "관리자",
+      "created_at": "2026-06-05 16:03",
+      "views": 1074,
+      "has_file": false
+    },
+    {
+      "id": 5,
+      "title": "교육 평가 기준(클라우드기반 스마트융합보안과정 32기 이후 기수부터 해당)",
+      "author": "관리자",
+      "created_at": "2026-04-22 10:06",
+      "views": 1362,
+      "has_file": false
+    },
+    {
+      "id": 6,
+      "title": "SSLC 사용 가이드",
+      "author": "관리자",
+      "created_at": "2025-09-09 09:54",
+      "views": 603,
+      "has_file": true
+    },
+    {
+      "id": 7,
+      "title": "PBL 안내",
+      "author": "관리자",
+      "created_at": "2025-06-10 10:38",
+      "views": 2092,
+      "has_file": false
+    }
+  ],
+  "faqs": [
+    {
+      "id": 1,
+      "title": "교육 과정 중 근로를 해도 괜찮을까요?",
+      "author": "관리자",
+      "created_at": "2024-09-21 15:21",
+      "views": 754
+    },
+    {
+      "id": 2,
+      "title": "공가 (또는 병가) 신청을 했는데, HRD-Net에는 지각/결석/조퇴로 뜹니다. 공가 신청이 안 된 건가요?",
+      "author": "관리자",
+      "created_at": "2024-09-21 15:20",
+      "views": 497
+    },
+    {
+      "id": 3,
+      "title": "코로나19 확진 시, 출결 인정은 어떻게 되나요?",
+      "author": "관리자",
+      "created_at": "2024-09-21 14:54",
+      "views": 180
+    },
+    {
+      "id": 4,
+      "title": "상담 신청은 어디서 하나요?",
+      "author": "매니저2",
+      "created_at": "2024-07-08 14:35",
+      "views": 231
+    },
+    {
+      "id": 5,
+      "title": "평가 기준은 어떻게 되나요?",
+      "author": "매니저2",
+      "created_at": "2024-07-03 09:49",
+      "views": 571
+    },
+    {
+      "id": 6,
+      "title": "노트북이 멈췄습니다. 재부팅이 안돼요.",
+      "author": "매니저2",
+      "created_at": "2024-07-02 10:06",
+      "views": 316
+    }
   ]
 }

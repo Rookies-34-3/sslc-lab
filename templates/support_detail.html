@@ -1,0 +1,4 @@
+{% extends 'base.html' %}
+{% block content %}
+<article class="lab-support-detail"><h2>{{ item.title }}</h2><div class="lab-detail-meta"><span>{{ item.author }}</span><time>{{ item.created_at }}</time><span>조회 {{ item.views }}</span></div><div class="lab-plain-content">{{ '교육용 SSLC Lab에 등록된 자료 안내입니다.' if section == 'resources' else '문의하신 내용은 교육운영사무국의 안내에 따라 처리해주세요.' }}</div>{% if item.has_file|default(false) %}<p class="lab-support-note"><i class="las la-paperclip"></i> 화면 재현용 첨부 표시입니다.</p>{% endif %}<a class="lab-go-list" href="{{ url_for('resources') if section == 'resources' else url_for('faq') }}">목록으로</a></article>
+{% endblock %}
