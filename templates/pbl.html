@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="sc-gjYfiE kQLkoz"><div class="sc-cJbhSk kcFCbs">
+  <form class="sc-lccgLh hVFAzQ" method="get"><div class="sc-kYxDKI bNPkwe MuiTabs-root"><div class="sc-bpUBKd eddfUh MuiTabs-scroller MuiTabs-fixed"><div class="sc-eyvILC syaAf MuiTabs-flexContainer lab-category-tabs" role="tablist">
+    {% for label in ['전체'] + categories %}{% set value = '' if label == '전체' else label %}<button type="submit" name="category" value="{{ value }}" class="sc-eeDRCY HAumO MuiButtonBase-root sc-hwdzOV iGJItZ MuiTab-root MuiTab-textColorPrimary MuiTab-fullWidth {{ 'Mui-selected' if category == value else '' }} {{ 'long' if label|length > 20 else '' }}" role="tab" aria-selected="{{ 'true' if category == value else 'false' }}">{{ label }}<span class="sc-bXCLTC egsNKe MuiTouchRipple-root"></span></button>{% endfor %}
+  </div></div></div></form>
+  <div class="sc-leXBFf gkVVL">
+    {% for problem in problems %}<a class="{{ problem.card_class }} lab-pbl-card" href="{{ url_for('problem_detail', problem_id=problem.id) }}">
+      <div class="{{ problem.top_class }}"><div><span class="circle"></span><span>{{ problem.group }}</span></div><div class="level">{{ problem.level }}</div></div>
+      <div class="{{ problem.body_class }}"><h2><p>[{{ problem.category }}]</p><p>{{ problem.title }}</p></h2><div class="subTitleBox"><span class="number">{{ problem.number }}</span><span class="subTitle">{{ problem.description }}</span></div><div class="sc-cIfMiO ghUJit">{{ counts.get(problem.id, 0) }}명이 풀었어요.</div></div>
+      {% if problem.id in submissions %}<span class="sc-jkYnoz kxEPAC">제출완료</span>{% endif %}
+    </a>{% else %}<p class="lab-empty">등록된 문제가 없습니다.</p>{% endfor %}
+  </div>
+</div></div>
+{% endblock %}

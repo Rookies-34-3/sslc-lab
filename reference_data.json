@@ -1,0 +1,478 @@
+{
+  "notices": [
+    {
+      "title": "[강의설문] 개인정보보호",
+      "created_at": "2026-09-30 17:15"
+    },
+    {
+      "title": "[공지] 오프라인 교육 안내",
+      "created_at": "2026-09-30 16:48"
+    },
+    {
+      "title": "[공지] 1차 사후 역량평가",
+      "created_at": "2026-09-30 16:43"
+    },
+    {
+      "title": "[안내] 개인정보보호 과정 PBL 안내",
+      "created_at": "2026-09-29 13:36"
+    },
+    {
+      "title": "[강의설문] 클라우드 보안",
+      "created_at": "2026-09-22 17:10"
+    },
+    {
+      "title": "[안내] 클라우드 보안 과정 PBL 안내",
+      "created_at": "2026-09-14 10:02"
+    },
+    {
+      "title": "[공지]클라우드 사용 시 주의사항 및 실습 경로 안내",
+      "created_at": "2026-09-11 17:44"
+    },
+    {
+      "title": "[강의설문] 애플리케이션 보안",
+      "created_at": "2026-09-11 17:26"
+    },
+    {
+      "title": "[안내] 애플리케이션 보안 과정 PBL 안내",
+      "created_at": "2026-08-31 10:21"
+    },
+    {
+      "title": "[강의설문] 기술특강2",
+      "created_at": "2026-08-28 17:41"
+    }
+  ],
+  "problems": [
+    {
+      "id": 1,
+      "category": "생성형AI 활용을 위한 파이썬",
+      "title": "미니 마트 온라인 쇼핑몰 장바구니 데이터 구현",
+      "description": "변수, 자료형, 컬렉션, 연산자를 활용한 장바구니 금액 계산 및 요약 출력 프로그램 작성",
+      "number": "01",
+      "group": "PBL 01",
+      "level": "BASIC",
+      "card_class": "sc-hyhWHZ MNeiF",
+      "top_class": "sc-EElJA fLlKEd",
+      "body_class": "sc-jBJxhn jGYUKV"
+    },
+    {
+      "id": 2,
+      "category": "생성형AI 활용을 위한 파이썬",
+      "title": "카페 주문 관리 및 결제 프로그램 구현",
+      "description": "while 반복문과 컬렉션 자료형(dict, list, set)을 활용한 주문 처리 및 할인 적용 시스템 만들기",
+      "number": "02",
+      "group": "PBL 01",
+      "level": "BASIC",
+      "card_class": "sc-hyhWHZ MNeiF",
+      "top_class": "sc-EElJA fLlKEd",
+      "body_class": "sc-jBJxhn jGYUKV"
+    },
+    {
+      "id": 3,
+      "category": "생성형AI 활용을 위한 파이썬",
+      "title": "학원 성적 관리 프로그램 구현",
+      "description": "함수 분리와 컬렉션 자료형을 활용한 평균·최고/최저 점수 및 등급 계산 시스템 만들기",
+      "number": "03",
+      "group": "PBL 01",
+      "level": "BASIC",
+      "card_class": "sc-hyhWHZ MNeiF",
+      "top_class": "sc-EElJA fLlKEd",
+      "body_class": "sc-jBJxhn jGYUKV"
+    },
+    {
+      "id": 4,
+      "category": "생성형AI 활용을 위한 파이썬",
+      "title": "파일 입출력을 활용한 학생 성적 관리 OOP 프로그램",
+      "description": "StudentScores 클래스 설계를 통한 평균 계산, 성적 분류 및 파일 저장 기능 구현",
+      "number": "04",
+      "group": "PBL 01",
+      "level": "ADVANCED",
+      "card_class": "sc-hyhWHZ MNeiF",
+      "top_class": "sc-EElJA fLlKEd",
+      "body_class": "sc-jBJxhn jGYUKV"
+    },
+    {
+      "id": 5,
+      "category": "생성형AI 활용을 위한 파이썬",
+      "title": "서버 로그 IP 주소 추출 및 빈도 분석 프로그램",
+      "description": "정규표현식과 예외처리를 활용한 로그 데이터 분석 및 상위 IP 집계 시스템 구현",
+      "number": "05",
+      "group": "PBL 01",
+      "level": "ADVANCED",
+      "card_class": "sc-hyhWHZ MNeiF",
+      "top_class": "sc-EElJA fLlKEd",
+      "body_class": "sc-jBJxhn jGYUKV"
+    },
+    {
+      "id": 6,
+      "category": "생성형AI 활용을 위한 파이썬",
+      "title": "디렉터리 파일 시스템 보안 모니터링 프로그램",
+      "description": "집합(set)과 파일 분석을 활용한 신규 파일 탐지 및 민감 정보 패턴 감지 시스템 구현",
+      "number": "06",
+      "group": "PBL 01",
+      "level": "ADVANCED",
+      "card_class": "sc-hyhWHZ MNeiF",
+      "top_class": "sc-EElJA fLlKEd",
+      "body_class": "sc-jBJxhn jGYUKV"
+    },
+    {
+      "id": 7,
+      "category": "생성형AI 활용을 위한 머신러닝&딥러닝",
+      "title": "당뇨병 진단 데이터를 활용한 데이터 전처리 및 EDA 분석",
+      "description": "결측치 및 이상치 처리 방법 학습",
+      "number": "01",
+      "group": "PBL 02",
+      "level": "BASIC",
+      "card_class": "sc-hyhWHZ fVpWYF",
+      "top_class": "sc-EElJA fMmDA-d",
+      "body_class": "sc-jBJxhn lcgHwF"
+    },
+    {
+      "id": 8,
+      "category": "생성형AI 활용을 위한 머신러닝&딥러닝",
+      "title": "주택 가격 데이터를 활용한 회귀 모델 학습 및 예측",
+      "description": "DecisionTreeRegressor를 활용한 모델 구축 및 성능 평가",
+      "number": "02",
+      "group": "PBL 02",
+      "level": "BASIC",
+      "card_class": "sc-hyhWHZ fVpWYF",
+      "top_class": "sc-EElJA fMmDA-d",
+      "body_class": "sc-jBJxhn lcgHwF"
+    },
+    {
+      "id": 9,
+      "category": "생성형AI 활용을 위한 머신러닝&딥러닝",
+      "title": "고객 데이터를 활용한 K-Means 클러스터링 분석",
+      "description": "최적의 클러스터 수 결정 및 Silhouette Score를 통한 결과 평가",
+      "number": "03",
+      "group": "PBL 02",
+      "level": "BASIC",
+      "card_class": "sc-hyhWHZ fVpWYF",
+      "top_class": "sc-EElJA fMmDA-d",
+      "body_class": "sc-jBJxhn lcgHwF"
+    },
+    {
+      "id": 10,
+      "category": "생성형AI 활용을 위한 머신러닝&딥러닝",
+      "title": "웹 서버 로그 기반 악성 요청 탐지를 위한 분류 모델 구축",
+      "description": "로그 데이터 전처리 및 성능 지표(Accuracy, F1 등)를 활용한 모델 평가",
+      "number": "04",
+      "group": "PBL 02",
+      "level": "ADVANCED",
+      "card_class": "sc-hyhWHZ fVpWYF",
+      "top_class": "sc-EElJA fMmDA-d",
+      "body_class": "sc-jBJxhn lcgHwF"
+    },
+    {
+      "id": 11,
+      "category": "생성형AI 활용을 위한 머신러닝&딥러닝",
+      "title": "고객 이탈 여부 예측을 위한 딥러닝 분류 모델 설계",
+      "description": "클래스 불균형을 고려한 MLP 기반 이진 분류 모델 구현",
+      "number": "05",
+      "group": "PBL 02",
+      "level": "ADVANCED",
+      "card_class": "sc-hyhWHZ fVpWYF",
+      "top_class": "sc-EElJA fMmDA-d",
+      "body_class": "sc-jBJxhn lcgHwF"
+    },
+    {
+      "id": 12,
+      "category": "생성형AI 활용을 위한 머신러닝&딥러닝",
+      "title": "OpenAI 함수 호출 기능 활용 AI Agent 구현",
+      "description": "Chat GPT API 활용 및 Function Calling 흐름 설계",
+      "number": "06",
+      "group": "PBL 02",
+      "level": "ADVANCED",
+      "card_class": "sc-hyhWHZ fVpWYF",
+      "top_class": "sc-EElJA fMmDA-d",
+      "body_class": "sc-jBJxhn lcgHwF"
+    },
+    {
+      "id": 13,
+      "category": "네트워크 보안",
+      "title": "소규모 사무실 네트워크 인프라 기본 설계",
+      "description": "기초 통신 최적화: IP 할당부터 Ping 테스트 검증까지",
+      "number": "01",
+      "group": "PBL 03",
+      "level": "BASIC",
+      "card_class": "sc-hyhWHZ bcbEDP",
+      "top_class": "sc-EElJA kvMbfh",
+      "body_class": "sc-jBJxhn fuECNH"
+    },
+    {
+      "id": 14,
+      "category": "네트워크 보안",
+      "title": "라우팅 테이블 오류 진단 및 수정",
+      "description": "본사-지사 간 연결 끊김 해결: 정적 라우팅 오류 진단과 트러블슈팅",
+      "number": "02",
+      "group": "PBL 03",
+      "level": "BASIC",
+      "card_class": "sc-hyhWHZ bcbEDP",
+      "top_class": "sc-EElJA kvMbfh",
+      "body_class": "sc-jBJxhn fuECNH"
+    },
+    {
+      "id": 15,
+      "category": "네트워크 보안",
+      "title": "초기 방화벽 ACL 정책 적용",
+      "description": "웹 트래픽 선별 허용: ACL 정책 수립을 통한 내부망 보안 강화",
+      "number": "03",
+      "group": "PBL 03",
+      "level": "BASIC",
+      "card_class": "sc-hyhWHZ bcbEDP",
+      "top_class": "sc-EElJA kvMbfh",
+      "body_class": "sc-jBJxhn fuECNH"
+    },
+    {
+      "id": 16,
+      "category": "네트워크 보안",
+      "title": "Rogue DHCP와 starvation attack 방어",
+      "description": "DHCP Spoofing 공격 원리 이해",
+      "number": "04",
+      "group": "PBL 03",
+      "level": "ADVANCED",
+      "card_class": "sc-hyhWHZ bcbEDP",
+      "top_class": "sc-EElJA kvMbfh",
+      "body_class": "sc-jBJxhn fuECNH"
+    },
+    {
+      "id": 17,
+      "category": "네트워크 보안",
+      "title": "NAT/PAT를 활용한 사설망 인터넷 통신 구현",
+      "description": "사설 IP를 공인 IP로 변환, 외부 네트워크와 통신 환경을 구축 및 NAT 변환 과정 확인",
+      "number": "05",
+      "group": "PBL 03",
+      "level": "ADVANCED",
+      "card_class": "sc-hyhWHZ bcbEDP",
+      "top_class": "sc-EElJA kvMbfh",
+      "body_class": "sc-jBJxhn fuECNH"
+    },
+    {
+      "id": 18,
+      "category": "네트워크 보안",
+      "title": "GRE 터널을 활용한 지점 간 VPN 통신 구현",
+      "description": "서로 다른 사설 네트워크 간 GRE 터널 구성 및 정적 라우팅을 통한 통신 환경 구축",
+      "number": "06",
+      "group": "PBL 03",
+      "level": "ADVANCED",
+      "card_class": "sc-hyhWHZ bcbEDP",
+      "top_class": "sc-EElJA kvMbfh",
+      "body_class": "sc-jBJxhn fuECNH"
+    },
+    {
+      "id": 19,
+      "category": "클라우드 보안",
+      "title": "EC2 생성 및 원격 접속 설정 실습",
+      "description": "조건에 맞는 EC2 구성과 이미지 캡처를 통한 생성 과정 보고서 제출",
+      "number": "01",
+      "group": "PBL 04",
+      "level": "BASIC",
+      "card_class": "sc-hyhWHZ iNgdIL",
+      "top_class": "sc-EElJA dqlval",
+      "body_class": "sc-jBJxhn cFhPNH"
+    },
+    {
+      "id": 20,
+      "category": "클라우드 보안",
+      "title": "IAM 및 S3 버킷 정책 분석을 통한 권한 평가",
+      "description": "user01의 액션 허용 여부를 정책 예시로 분석하고 보고서 제출",
+      "number": "02",
+      "group": "PBL 04",
+      "level": "BASIC",
+      "card_class": "sc-hyhWHZ iNgdIL",
+      "top_class": "sc-EElJA dqlval",
+      "body_class": "sc-jBJxhn cFhPNH"
+    },
+    {
+      "id": 21,
+      "category": "클라우드 보안",
+      "title": "IAM 및 S3 권한 설정을 통한 세분화된 접근 제어 실습",
+      "description": "EC2 작업과 S3 업로드 권한을 조건에 맞게 정책으로 구현하고 경계 정책으로 제한 설정",
+      "number": "03",
+      "group": "PBL 04",
+      "level": "BASIC",
+      "card_class": "sc-hyhWHZ iNgdIL",
+      "top_class": "sc-EElJA dqlval",
+      "body_class": "sc-jBJxhn cFhPNH"
+    },
+    {
+      "id": 22,
+      "category": "클라우드 보안",
+      "title": "EC2 중심 관리에서 관리형 서비스로 전환하기",
+      "description": "웹과 애플리케이션을 분리해 확장성과 유연성을 확보하는 클라우드 아키텍처 설계",
+      "number": "04",
+      "group": "PBL 04",
+      "level": "ADVANCED",
+      "card_class": "sc-hyhWHZ iNgdIL",
+      "top_class": "sc-EElJA dqlval",
+      "body_class": "sc-jBJxhn cFhPNH"
+    },
+    {
+      "id": 23,
+      "category": "클라우드 보안",
+      "title": "단일 EC2 환경의 서비스 분리와 아키텍처 재설계",
+      "description": "웹·애플리케이션 결합 구조를 분석하고 마이크로서비스 아키텍처로 전환하기",
+      "number": "05",
+      "group": "PBL 04",
+      "level": "ADVANCED",
+      "card_class": "sc-hyhWHZ iNgdIL",
+      "top_class": "sc-EElJA dqlval",
+      "body_class": "sc-jBJxhn cFhPNH"
+    },
+    {
+      "id": 24,
+      "category": "클라우드 보안",
+      "title": "로드 밸런서와 오토 스케일링을 적용해 확장 가능한 애플리케이션 환경 만들기",
+      "description": "확장성과 안정성을 높이기 위해 분리된 아키텍처에 로드 분산과 자동 확장을 적용해 보자",
+      "number": "06",
+      "group": "PBL 04",
+      "level": "ADVANCED",
+      "card_class": "sc-hyhWHZ iNgdIL",
+      "top_class": "sc-EElJA dqlval",
+      "body_class": "sc-jBJxhn cFhPNH"
+    },
+    {
+      "id": 25,
+      "category": "애플리케이션 보안",
+      "title": "Nmap을 활용한 가상 점검 대상 포트 스캔 및 결과 보고서 작성",
+      "description": "포트별 프로토콜 및 서비스 버전 분석과 XML 결과 변환",
+      "number": "01",
+      "group": "PBL 05",
+      "level": "BASIC",
+      "card_class": "sc-hyhWHZ kOngxQ",
+      "top_class": "sc-EElJA hRzDSB",
+      "body_class": "sc-jBJxhn eFGipk"
+    },
+    {
+      "id": 26,
+      "category": "애플리케이션 보안",
+      "title": "Nmap 스캔 결과 분석을 통한 취약점 식별 및 포트별 대응 방안 수립",
+      "description": "포트별 활성화 서비스 분석과 위험도 평가 기반의 상세 보안 대책 작성",
+      "number": "02",
+      "group": "PBL 05",
+      "level": "BASIC",
+      "card_class": "sc-hyhWHZ kOngxQ",
+      "top_class": "sc-EElJA hRzDSB",
+      "body_class": "sc-jBJxhn eFGipk"
+    },
+    {
+      "id": 27,
+      "category": "애플리케이션 보안",
+      "title": "OSINT 검색 서비스를 활용한 외부 노출 포트 및 잠재적 취약점 진단",
+      "description": "Criminal IP 기반의 IP 정보 분석을 통한 악성 서버 판단 및 포트별 위험성 해석",
+      "number": "03",
+      "group": "PBL 05",
+      "level": "BASIC",
+      "card_class": "sc-hyhWHZ kOngxQ",
+      "top_class": "sc-EElJA hRzDSB",
+      "body_class": "sc-jBJxhn eFGipk"
+    },
+    {
+      "id": 28,
+      "category": "애플리케이션 보안",
+      "title": "가상 쇼핑몰 XSS 취약점을 이용한 관리자 쿠키 탈취 및 권한 획득 진단",
+      "description": "악의적 스크립트 삽입 지점 식별을 통한 세션 하이재킹과 권한 변조 단계별 실습",
+      "number": "04",
+      "group": "PBL 05",
+      "level": "ADVANCED",
+      "card_class": "sc-hyhWHZ kOngxQ",
+      "top_class": "sc-EElJA hRzDSB",
+      "body_class": "sc-jBJxhn eFGipk"
+    },
+    {
+      "id": 29,
+      "category": "애플리케이션 보안",
+      "title": "악의적 스크립트 삽입 지점 식별을 통한 세션 하이재킹과 권한 변조 단계별 실습",
+      "description": "비박스(bWAPP) 실습 기반의 데이터베이스 정보 획득과 관리자·사용자 개인정보 추출",
+      "number": "05",
+      "group": "PBL 05",
+      "level": "ADVANCED",
+      "card_class": "sc-hyhWHZ kOngxQ",
+      "top_class": "sc-EElJA hRzDSB",
+      "body_class": "sc-jBJxhn eFGipk"
+    },
+    {
+      "id": 30,
+      "category": "애플리케이션 보안",
+      "title": "우편 검색 SQL Injection과 DB 관리자 권한을 악용한 시스템 침투 진단",
+      "description": "데이터베이스 root 권한 기반의 웹쉘 생성 및 원격 악성코드 업로드 실습",
+      "number": "06",
+      "group": "PBL 05",
+      "level": "ADVANCED",
+      "card_class": "sc-hyhWHZ kOngxQ",
+      "top_class": "sc-EElJA hRzDSB",
+      "body_class": "sc-jBJxhn eFGipk"
+    },
+    {
+      "id": 31,
+      "category": "개인정보보호",
+      "title": "ISMS-P 인증의 이해",
+      "description": "ISMS-P 의 법적 근거 설명",
+      "number": "01",
+      "group": "PBL 06",
+      "level": "BASIC",
+      "card_class": "sc-hyhWHZ bllgMU",
+      "top_class": "sc-EElJA gSMorh",
+      "body_class": "sc-jBJxhn grZVmg"
+    },
+    {
+      "id": 32,
+      "category": "개인정보보호",
+      "title": "ISMS-P 인증의 이해",
+      "description": "ISMS 와 ISMS-P 구분하기",
+      "number": "02",
+      "group": "PBL 06",
+      "level": "BASIC",
+      "card_class": "sc-hyhWHZ bllgMU disabled",
+      "top_class": "sc-EElJA gSMorh",
+      "body_class": "sc-jBJxhn grZVmg"
+    },
+    {
+      "id": 33,
+      "category": "개인정보보호",
+      "title": "개인정보보호",
+      "description": "결과 파일을 업로드해주세요.",
+      "number": "03",
+      "group": "PBL 06",
+      "level": "BASIC",
+      "card_class": "sc-hyhWHZ bllgMU disabled",
+      "top_class": "sc-EElJA gSMorh",
+      "body_class": "sc-hqUaMi eCdnty"
+    },
+    {
+      "id": 34,
+      "category": "개인정보보호",
+      "title": "개인정보보호",
+      "description": "결과 파일을 업로드해주세요.",
+      "number": "04",
+      "group": "PBL 06",
+      "level": "ADVANCED",
+      "card_class": "sc-hyhWHZ bllgMU disabled",
+      "top_class": "sc-EElJA gSMorh",
+      "body_class": "sc-hqUaMi eCdnty"
+    },
+    {
+      "id": 35,
+      "category": "개인정보보호",
+      "title": "개인정보보호",
+      "description": "결과 파일을 업로드해주세요.",
+      "number": "05",
+      "group": "PBL 06",
+      "level": "ADVANCED",
+      "card_class": "sc-hyhWHZ bllgMU disabled",
+      "top_class": "sc-EElJA gSMorh",
+      "body_class": "sc-hqUaMi eCdnty"
+    },
+    {
+      "id": 36,
+      "category": "개인정보보호",
+      "title": "개인정보보호",
+      "description": "결과 파일을 업로드해주세요.",
+      "number": "06",
+      "group": "PBL 06",
+      "level": "ADVANCED",
+      "card_class": "sc-hyhWHZ bllgMU disabled",
+      "top_class": "sc-EElJA gSMorh",
+      "body_class": "sc-hqUaMi eCdnty"
+    }
+  ]
+}

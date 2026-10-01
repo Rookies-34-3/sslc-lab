@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="sc-gjYfiE kQLkoz"><div class="sc-zmges hmFnqe">
+  <div class="sc-erUUZj CTqOL"><a href="{{ url_for('pbl') }}" aria-label="PBL 목록으로"><img alt="" src="{{ ref('/icons/back.png') }}"></a></div>
+  <div class="sc-bkzQlO fHIiIt"><p>{{ problem.category }} - <span>{{ problem.number|int }}</span>번 문제</p><h1>{{ problem.title }}</h1><span class="subtitle-detail">{{ problem.description }}</span><span class="level">{{ problem.level }}</span></div>
+  {% if problem.id == 1 %}{% include 'reference/problem_body.html' %}{% else %}<div class="sc-hzhJZQ doMaPq sc-ijanKN jUVhzP rich-text-content"><p>{{ problem.description }}</p><p>작성한 결과 파일을 아래에서 제출해주세요.</p></div>{% endif %}
+  <div class="sc-fbFiXs iPrCDR">
+    {% if submissions %}<div class="sc-jNwOwP fbgYMR"><span class="upload-done">제출을 완료했어요.</span></div><div class="lab-submissions">{% for file in submissions %}<a class="lab-file-link" href="{{ url_for('download', file_id=file.id) }}">{{ file.original_name }}</a>{% endfor %}</div>{% endif %}
+    <form class="lab-upload-form" method="post" enctype="multipart/form-data"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label for="taskResult">제출 파일</label><input id="taskResult" type="file" name="taskResult" accept=".pdf,.txt,.zip,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.hwp,.hwpx,.rtf,.png,.jpg,.jpeg,.gif,.webp" required><button type="submit">파일 제출</button><p class="notice">첨부파일을 포함하여 16MB 이내로 제출해주세요.</p></form>
+  </div>
+</div></div>
+{% endblock %}

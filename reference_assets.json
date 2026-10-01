@@ -1,0 +1,100 @@
+{
+  "styles": {
+    "login": [
+      "/static/reference/5ddf910f8ba8fc2d945e.css",
+      "/static/reference/65d87ce0d1e829912afd.css",
+      "/static/reference/84108120f2bc1247028c.css",
+      "/static/reference/11155dadca3b8113bf29.css",
+      "/static/reference/f5037e38bed91a47616d.css",
+      "/static/reference/5bbe1e16a4f897ddff1f.css"
+    ],
+    "notice": [
+      "/static/reference/5ddf910f8ba8fc2d945e.css",
+      "/static/reference/65d87ce0d1e829912afd.css",
+      "/static/reference/4e6f46055e05fc77e54e.css",
+      "/static/reference/ac0fb2758d638fe78e15.css",
+      "/static/reference/4143afa2820df8a2a062.css",
+      "/static/reference/11155dadca3b8113bf29.css",
+      "/static/reference/f5037e38bed91a47616d.css",
+      "/static/reference/5bbe1e16a4f897ddff1f.css"
+    ],
+    "qna": [
+      "/static/reference/5ddf910f8ba8fc2d945e.css",
+      "/static/reference/65d87ce0d1e829912afd.css",
+      "/static/reference/e5860e3bf78b10118d79.css",
+      "/static/reference/ac0fb2758d638fe78e15.css",
+      "/static/reference/4143afa2820df8a2a062.css",
+      "/static/reference/11155dadca3b8113bf29.css",
+      "/static/reference/f5037e38bed91a47616d.css",
+      "/static/reference/5bbe1e16a4f897ddff1f.css"
+    ],
+    "write": [
+      "/static/reference/5ddf910f8ba8fc2d945e.css",
+      "/static/reference/65d87ce0d1e829912afd.css",
+      "/static/reference/0581ee7e12bfdeaba00e.css",
+      "/static/reference/ac0fb2758d638fe78e15.css",
+      "/static/reference/4143afa2820df8a2a062.css",
+      "/static/reference/b633fe09f08739ccbdff.css",
+      "/static/reference/11155dadca3b8113bf29.css",
+      "/static/reference/f5037e38bed91a47616d.css",
+      "/static/reference/5bbe1e16a4f897ddff1f.css"
+    ],
+    "detail": [
+      "/static/reference/5ddf910f8ba8fc2d945e.css",
+      "/static/reference/65d87ce0d1e829912afd.css",
+      "/static/reference/3cf2549d30ac8edee143.css",
+      "/static/reference/ac0fb2758d638fe78e15.css",
+      "/static/reference/4143afa2820df8a2a062.css",
+      "/static/reference/11155dadca3b8113bf29.css",
+      "/static/reference/f5037e38bed91a47616d.css",
+      "/static/reference/5bbe1e16a4f897ddff1f.css"
+    ],
+    "pbl": [
+      "/static/reference/5ddf910f8ba8fc2d945e.css",
+      "/static/reference/65d87ce0d1e829912afd.css",
+      "/static/reference/4e6f46055e05fc77e54e.css",
+      "/static/reference/ac0fb2758d638fe78e15.css",
+      "/static/reference/4143afa2820df8a2a062.css",
+      "/static/reference/11155dadca3b8113bf29.css",
+      "/static/reference/f5037e38bed91a47616d.css",
+      "/static/reference/5bbe1e16a4f897ddff1f.css"
+    ],
+    "problem": [
+      "/static/reference/5ddf910f8ba8fc2d945e.css",
+      "/static/reference/65d87ce0d1e829912afd.css",
+      "/static/reference/c1f5bb57a08ace161440.css",
+      "/static/reference/ac0fb2758d638fe78e15.css",
+      "/static/reference/4143afa2820df8a2a062.css",
+      "/static/reference/11155dadca3b8113bf29.css",
+      "/static/reference/f5037e38bed91a47616d.css",
+      "/static/reference/5bbe1e16a4f897ddff1f.css"
+    ]
+  },
+  "resources": {
+    "/assets/astro-CFfO2rT7.gif": "/static/reference/21e4702c2bbeb8636f9a.gif",
+    "/assets/sk_shieldus_comm_rgb_kr-DTt_gFQ5.png": "/static/reference/3410f9075e1ad1fee1c1.png",
+    "/assets/bg-login-BHg3iFvS.jpg": "/static/reference/37af6a7b3d859befa196.jpg",
+    "/assets/icons/people.png": "/static/reference/8c6ff34e7fce07d6e797.png",
+    "/icons/appendix.png": "/static/reference/43bc74761ab6700913dc.png",
+    "/icons/search_icon.png": "/static/reference/c02b64c0128bb66028ef.png",
+    "/logo.png": "/static/reference/a618f7c90494ca567b6c.png",
+    "/assets/sk_logo1-Cmeac91U.svg": "/static/reference/4026f79ff562f3538637.svg",
+    "/icons/after_arrow02.png": "/static/reference/a44d639063350a519611.png",
+    "/icons/after_arrow01.png": "/static/reference/85431bb5ace308a6ea2e.png",
+    "/icons/before_arrow01.png": "/static/reference/13b02ed942b68c44d467.png",
+    "/icons/before_arrow02.png": "/static/reference/8a88d4236aa4df46457a.png",
+    "/assets/icons/privacy.png": "/static/reference/e67617a8d7a5f8e005ae.png",
+    "/assets/icons/alarm-clock.png": "/static/reference/aaf7ad565dc17541f16c.png",
+    "/main/pbl-file/559/image/20260722_131203_%ED%8C%8C%EC%9D%B4%EC%8D%ACpbl1%EB%B2%88%EB%AC%B8%EC%A0%9C2.jpg": "/static/reference/686d665e79a915b05658.jpg",
+    "/main/pbl-file/559/image/20260722_131157_%ED%8C%8C%EC%9D%B4%EC%8D%ACpbl1%EB%B2%88%EB%AC%B8%EC%A0%9C.jpg": "/static/reference/889153248ed05fc50661.jpg",
+    "/icons/back.png": "/static/reference/a13c2d1c2af21519b73a.png",
+    "/assets/fa-brands-400-F-vh2M2S.woff2": "/static/reference/70591731f20c10a7dfeb.woff2",
+    "/assets/fa-regular-400-nlupHwI1.woff2": "/static/reference/6982de33cbdf0150ba84.woff2",
+    "/assets/fa-solid-900-D3IoOn-o.woff2": "/static/reference/91eb286a1a12bc591119.woff2",
+    "/assets/la-brands-400-Cq-R4OEF.woff2": "/static/reference/13c89fcf0c001246f058.woff2",
+    "/assets/la-regular-400-DuFMN_sw.woff2": "/static/reference/22150c6972eb3b0e265d.woff2",
+    "/assets/la-solid-900-TjMEgv3Q.woff2": "/static/reference/82ff6503c22673b62880.woff2",
+    "/assets/index-DYCl27Oh.css": "/static/reference/5bbe1e16a4f897ddff1f.css"
+  },
+  "fonts": 130
+}

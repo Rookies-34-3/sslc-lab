@@ -1,0 +1,27 @@
+@charset "utf-8";
+
+.styles-module_tooltip__mnnfp { border-radius: 3px; font-size: 90%; width: max-content; }
+
+.styles-module_content__ydYdI { background: inherit; border-radius: inherit; padding: 8px 16px; }
+
+.styles-module_arrow__K0L3T { width: var(--rt-arrow-size); height: var(--rt-arrow-size); }
+
+[class*="react-tooltip__place-top"] > .styles-module_arrow__K0L3T { transform: rotate(45deg); }
+
+[class*="react-tooltip__place-right"] > .styles-module_arrow__K0L3T { transform: rotate(135deg); }
+
+[class*="react-tooltip__place-bottom"] > .styles-module_arrow__K0L3T { transform: rotate(225deg); }
+
+[class*="react-tooltip__place-left"] > .styles-module_arrow__K0L3T { transform: rotate(315deg); }
+
+.styles-module_dark__xNqje { background: var(--rt-color-dark); color: var(--rt-color-white); }
+
+.styles-module_light__Z6W-X { background-color: var(--rt-color-white); color: var(--rt-color-dark); }
+
+.styles-module_success__A2AKt { background-color: var(--rt-color-success); color: var(--rt-color-white); }
+
+.styles-module_warning__SCK0X { background-color: var(--rt-color-warning); color: var(--rt-color-white); }
+
+.styles-module_error__JvumD { background-color: var(--rt-color-error); color: var(--rt-color-white); }
+
+.styles-module_info__BWdHW { background-color: var(--rt-color-info); color: var(--rt-color-white); }

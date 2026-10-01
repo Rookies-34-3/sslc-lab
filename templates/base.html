@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>러닝클라우드 | SSLC Lab</title>
+  <link rel="icon" href="{{ ref('/logo.png') }}">
+  {% for stylesheet in assets.styles[asset_page] %}<link rel="stylesheet" href="{{ stylesheet }}">{% endfor %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body data-active="{{ active }}">
+  {% block body %}
+  <div id="root"><div class="sc-eHRHtx kWOgYD">
+    {% if current_user %}
+      {% include 'reference/header.html' %}
+      <div id="user-menu" class="lab-user-menu" hidden>
+        <p>{{ current_user.display_name }}</p><small>{{ current_user.username }}</small>
+        <form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">Signout</button></form>
+      </div>
+    {% endif %}
+    <div class="render login">
+      {% if current_user %}{% include 'reference/course.html' %}{% include 'reference/nav.html' %}{% endif %}
+      {% for category, message in get_flashed_messages(with_categories=true) %}<div class="lab-flash {{ category }}" role="status">{{ message }}</div>{% endfor %}
+      <main class="sc-kzwkWb hrpgQB"><div class="sc-dFSzXC gPXucV">{% block content %}{% endblock %}</div></main>
+    </div>
+    {% if current_user %}{% include 'reference/footer.html' %}{% endif %}
+    <button type="button" class="sc-cVzyXs bcLUzT" data-top><span>⌃ TOP</span></button>
+  </div></div>
+  {% endblock %}
+</body>
+</html>

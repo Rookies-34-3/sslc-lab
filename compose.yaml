@@ -1,0 +1,131 @@
+name: sslc-lab
+
+services:
+  nginx:
+    image: nginx:stable-alpine
+    user: "101:101"
+    ports:
+      - "${HOST_BIND:-127.0.0.1}:${HOST_PORT:-8080}:8080"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    entrypoint: ["nginx", "-g", "daemon off;"]
+    depends_on:
+      web:
+        condition: service_healthy
+    networks: [ingress, proxy]
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m,uid=101,gid=101
+      - /var/cache/nginx:rw,noexec,nosuid,size=32m,uid=101,gid=101
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 100
+    mem_limit: 128m
+    cpus: 0.5
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  web:
+    build: .
+    image: sslc-lab-web:local
+    environment:
+      SECRET_KEY: ${SECRET_KEY:?Run python tools/setup_env.py first}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Run python tools/setup_env.py first}
+      LAB_PASSWORD: ${LAB_PASSWORD:?Set LAB_PASSWORD in .env}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      DB_HOST: db
+      DB_NAME: sslc_lab
+      DB_USER: sslc_app
+      UPLOAD_DIR: /app/instance/uploads
+      TZ: Asia/Seoul
+    volumes:
+      - uploads:/app/instance/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [proxy, lab]
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m,uid=10000,gid=10000
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 100
+    mem_limit: 384m
+    cpus: 1.0
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).close()"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+
+  db:
+    image: mysql:8.4
+    user: mysql
+    command: ["--default-time-zone=+09:00", "--local-infile=OFF", "--secure-file-priv=NULL", "--mysqlx=OFF"]
+    environment:
+      MYSQL_DATABASE: sslc_lab
+      MYSQL_USER: sslc_app
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Run python tools/setup_env.py first}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Run python tools/setup_env.py first}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    networks: [lab]
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m,mode=1777
+      - /var/run/mysqld:rw,noexec,nosuid,size=8m,mode=0750,uid=999,gid=999
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 200
+    mem_limit: 768m
+    cpus: 1.0
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 10s
+      timeout: 5s
+      start_period: 60s
+      retries: 6
+
+  internal-service:
+    image: sslc-lab-web:local
+    command: ["python", "internal_service.py"]
+    networks: [lab]
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=8m,uid=10000,gid=10000
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 30
+    mem_limit: 64m
+    cpus: 0.25
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:9000/health', timeout=3).close()"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+networks:
+  ingress: {}
+  proxy:
+    internal: true
+    enable_ipv6: false
+    driver_opts:
+      com.docker.network.bridge.gateway_mode_ipv4: isolated
+  lab:
+    internal: true
+    enable_ipv6: false
+    driver_opts:
+      com.docker.network.bridge.gateway_mode_ipv4: isolated
+
+volumes:
+  uploads:
+  db_data:

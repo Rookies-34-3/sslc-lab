@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="sc-hQQMGV BosHh"><form method="post" enctype="multipart/form-data"><input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <div class="sc-eeFpNe cupvft"><h1>{{ heading }}</h1><div class="sc-bikFhf knTBPE">
+    <div><div class="input-box"><input type="text" name="title" aria-label="제목" placeholder="제목을 입력하세요." maxlength="200" required></div></div>
+    <div><div class="content-box"><textarea class="lab-body-input" name="body" aria-label="본문" placeholder="내용을 입력하세요." maxlength="10000" required></textarea></div></div>
+    <div class="files"><div class="content-box"><div class="sc-iEXKAA jDlZvk"><div class="appendix">
+      <div class="input"><span class="placeholder" data-filename="board-file">파일을 업로드해주세요.(선택사항)</span></div>
+      <input id="board-file" type="file" name="file" aria-label="첨부파일" accept=".pdf,.txt,.zip,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.hwp,.hwpx,.rtf,.png,.jpg,.jpeg,.gif,.webp">
+      <button type="button" data-file-picker="board-file"><span>업로드</span></button>
+    </div></div></div></div>
+    <div class="sc-bDumWk gVLLeN"><a href="{{ url_for('board', kind=kind) }}">취소</a><button type="submit">게시글 등록</button></div>
+  </div></div>
+</form></div>
+{% endblock %}

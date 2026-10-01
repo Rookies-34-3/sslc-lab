@@ -1,0 +1,13 @@
+@charset "utf-8";
+
+.swal2-container, .swal2-popup, .swal2-title, .swal2-html-container, .swal2-content, .swal2-actions, .swal2-styled, .swal2-validation-message { user-select: none; }
+
+.swal2-popup { min-width: 40em; }
+
+.swal2-title, .swal2-html-container, .swal2-content { white-space: pre-line; }
+
+.swal2-html-container, .swal2-content { font-size: 1.6rem; max-width: 100%; padding: 0px 2em; overflow-wrap: break-word; word-break: keep-all; }
+
+.swal2-styled.swal2-confirm, .swal2-styled.swal2-cancel, .swal2-styled.swal2-deny { font-size: 1.45rem; padding: 0.55em 2.2em; }
+
+.swal2-input { user-select: text; }

@@ -1,0 +1,32 @@
+/* Original archived styles load first. These rules connect semantic controls. */
+[hidden] { display: none !important; }
+button, input, textarea { font-family: inherit; }
+a.lab-pbl-card, td.title a, .fyYpMW a.item { color: inherit; text-decoration: none; }
+td.title a { display: flex; align-items: center; min-width: 0; width: 100%; height: 100%; }
+td.title a > span:first-child { max-width: 95%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+td.title .file-icon { position: absolute; right: 0; top: 50%; transform: translateY(-50%); }
+.ljyNOK button.search-icon { border: 0; }
+.lab-body-input { display: block; width: 100%; min-height: 320px; resize: vertical; padding: 16px; font-size: 16px; line-height: 1.6; border: 1px solid #e6e6e6; border-radius: 3px; box-sizing: border-box; }
+.lab-body-input:focus { outline: 1px solid #ec7422; }
+.lab-plain-content { white-space: pre-wrap; }
+.lab-file-link { display: block; margin: 10px 0; font-size: 15px; color: #555; overflow-wrap: anywhere; }
+.lab-file-link:hover { color: #ec7422; }
+.lab-go-list { text-decoration: none; }
+.lab-user-menu { position: absolute; top: 85px; right: 20px; z-index: 1000; min-width: 220px; padding: 20px; background: white; border: 1px solid #eee; border-radius: 10px; box-shadow: 0 5px 18px #0002; font-size: 15px; }
+.lab-user-menu p { margin: 0 0 5px; }
+.lab-user-menu small { color: #888; }
+.lab-user-menu button { width: 100%; margin-top: 20px; padding: 10px; color: #e64b36; border: 1px solid #e64b36; border-radius: 5px; background: white; cursor: pointer; }
+#login[role=button] { cursor: pointer; }
+.lab-flash { max-width: 1080px; margin: 15px auto; padding: 12px 18px; border-radius: 5px; background: #edf8ee; color: #246936; font-size: 15px; }
+.lab-flash.error { color: #9b2c21; background: #fff0ed; }
+.lab-login-message { position: fixed; top: 25px; left: 50%; transform: translateX(-50%); padding: 12px 24px; background: white; color: #ad3328; border-radius: 8px; box-shadow: 0 5px 20px #0002; z-index: 100; font-size: 16px; }
+.lab-upload-form { display: grid; width: 100%; gap: 15px; margin-top: 25px; font-size: 16px; }
+.lab-upload-form label { font-weight: 600; }
+.lab-upload-form input { padding: 12px; border: 1px solid #ddd; border-radius: 5px; }
+.lab-upload-form button { width: 160px; padding: 12px; color: white; background: #ec7422; border: 0; border-radius: 5px; cursor: pointer; }
+.lab-upload-form .notice { color: #888; font-size: 12px; margin: 0; }
+.lab-submissions { display: block !important; margin-top: 15px; padding-bottom: 0 !important; }
+.lab-error { padding: 70px 25px; font-size: 18px; text-align: center; }
+.lab-error h1 { font-size: 42px; margin-bottom: 20px; }
+.lab-error a { display: inline-block; margin-top: 20px; color: #ec7422; }
+.lab-empty { padding: 30px; font-size: 16px; }
