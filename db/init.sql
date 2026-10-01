@@ -1,3 +1,4 @@
+-- 유저 테이블
 CREATE TABLE users (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(80) NOT NULL UNIQUE,
@@ -6,6 +7,7 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB;
 
+-- 게시판
 CREATE TABLE posts (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     kind ENUM('notice', 'qna') NOT NULL,
@@ -18,6 +20,7 @@ CREATE TABLE posts (
     INDEX board_order (kind, created_at, id)
 ) ENGINE=InnoDB;
 
+-- PBL file 테이블
 CREATE TABLE files (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     owner_id INT UNSIGNED NOT NULL,
