@@ -1,3 +1,4 @@
+#임포트 
 import hmac
 import json
 import math
@@ -13,29 +14,30 @@ import pymysql
 from flask import Flask, abort, flash, g, jsonify, redirect, render_template, request, send_from_directory, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
-ROOT = Path(__file__).resolve().parent
-ASSETS = json.loads((ROOT / "reference_assets.json").read_text(encoding="utf-8"))
-REFERENCE = json.loads((ROOT / "reference_data.json").read_text(encoding="utf-8"))
-PROBLEMS = {item["id"]: item for item in REFERENCE["problems"]}
-UPLOADS = Path(os.environ.get("UPLOAD_DIR", ROOT / "instance" / "uploads"))
+
+ROOT = Path(__file__).resolve().parent                                                  #root폴더 지정
+ASSETS = json.loads((ROOT / "reference_assets.json").read_text(encoding="utf-8"))       #asset로드
+REFERENCE = json.loads((ROOT / "reference_data.json").read_text(encoding="utf-8"))      #
+PROBLEMS = {item["id"]: item for item in REFERENCE["problems"]}                         #
+UPLOADS = Path(os.environ.get("UPLOAD_DIR", ROOT / "instance" / "uploads"))             #업로드 저장 파일 위치 
 EXTENSIONS = {"pdf", "txt", "zip", "doc", "docx", "ppt", "pptx", "xls", "xlsx", "hwp", "hwpx", "rtf", "png", "jpg", "jpeg", "gif", "webp"}
 
 app = Flask(__name__)
 app.config.update(
-    SECRET_KEY=os.environ["SECRET_KEY"],
-    MAX_CONTENT_LENGTH=16 * 1024 * 1024,
-    SESSION_COOKIE_NAME="sslc_lab_session",
-    SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SAMESITE="Lax",
-    SESSION_COOKIE_SECURE=os.environ.get("COOKIE_SECURE", "false").lower() == "true",
-    PERMANENT_SESSION_LIFETIME=timedelta(hours=8),
+    SECRET_KEY=os.environ["SECRET_KEY"],                                                #세션 서명에 사용 
+    MAX_CONTENT_LENGTH=16 * 1024 * 1024,                                                #업로드 크기 
+    SESSION_COOKIE_NAME="sslc_lab_session",                                             #세션 정보 쿠키 이름
+    SESSION_COOKIE_HTTPONLY=True,                                                       #http only설정
+    SESSION_COOKIE_SECURE=os.environ.get("COOKIE_SECURE", "false").lower() == "true",   #secure설정
+    PERMANENT_SESSION_LIFETIME=timedelta(hours=8),                                      #세션 타임
 )
 
 
 def db():
+    # db 연결
     if "db" not in g:
         g.db = pymysql.connect(
-            host=os.environ.get("DB_HOST", "db"),
+            host=os.environ.get("DB_HOST", "db"),                                       
             user=os.environ.get("DB_USER", "sslc_app"),
             password=os.environ["MYSQL_PASSWORD"],
             database=os.environ.get("DB_NAME", "sslc_lab"),
@@ -46,6 +48,7 @@ def db():
 
 
 def query(sql, values=(), one=False):
+    #execute query
     with db().cursor() as cursor:
         cursor.execute(sql, values)
         return cursor.fetchone() if one else cursor.fetchall()
@@ -53,6 +56,7 @@ def query(sql, values=(), one=False):
 
 @app.teardown_appcontext
 def close_db(error=None):
+    #flask 종료시 db 종료
     connection = g.pop("db", None)
     if connection:
         connection.close()
@@ -60,6 +64,7 @@ def close_db(error=None):
 
 @app.before_request
 def load_user_and_check_csrf():
+    #csrf 토큰 
     g.user = None
     if request.endpoint == "static":
         return
@@ -74,6 +79,7 @@ def load_user_and_check_csrf():
 
 @app.after_request
 def security_headers(response):
+    #응답 헤더에 추가 
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Referrer-Policy"] = "same-origin"
@@ -105,11 +111,13 @@ def render_page(template, asset_page, active, **context):
 @app.get("/")
 @app.get("/my-class")
 def index():
+# 루트 인덱스 
     return redirect(url_for("board", kind="notice") if g.user else url_for("login"))
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+#로그인
     if request.method == "POST":
         user = query("SELECT * FROM users WHERE username=%s", (request.form.get("userId", "")[:80],), one=True)
         if user and check_password_hash(user["password_hash"], request.form.get("password", "")):
@@ -299,6 +307,7 @@ def seed_data():
             query("INSERT INTO posts (kind, author_id, title, body, created_at) VALUES ('notice',%s,%s,%s,%s)", (admin_id, notice["title"], body, notice["created_at"]))
 
 
+# flask main 함수
 if __name__ == "__main__":
     if "--init-db" in sys.argv:
         with app.app_context():
