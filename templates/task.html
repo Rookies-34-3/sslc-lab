@@ -4,7 +4,7 @@
   <div class="sc-fYXIxC kkWmQk"><div class="title"><h2>{{ task.title }}</h2></div><div class="sub-info"><div><span>제출 기간 {{ task.submit_period }} |</span><span>{{ task.created_at }}</span></div><div><span><i class="las la-user-circle"></i>{{ task.author }}</span></div></div></div>
   <div class="sc-hzhJZQ doMaPq sc-dcCXRD dfhSrp rich-text-content lab-plain-content">현장실습보고서를 작성하여 아래 제출 파일에 등록해주세요.</div>
   {% if submissions %}<div class="lab-submissions"><strong>내 제출 파일</strong>{% for file in submissions %}<a class="lab-file-link" href="{{ url_for('download', file_id=file.id) }}">{{ file.original_name }} · {{ file.created_at.strftime('%Y-%m-%d %H:%M') }}</a>{% endfor %}</div>{% endif %}
-  <form class="lab-upload-form" method="post" enctype="multipart/form-data"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label for="taskResult">제출 파일</label><input id="taskResult" type="file" name="taskResult" accept=".pdf,.txt,.zip,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.hwp,.hwpx,.rtf,.png,.jpg,.jpeg,.gif,.webp" required><button type="submit">파일 제출</button><p class="notice">첨부파일을 포함하여 16MB 이내로 제출해주세요.</p></form>
+  <form class="lab-upload-form" method="post" enctype="multipart/form-data"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label for="taskResult">제출 파일</label><input id="taskResult" type="file" name="taskResult" accept=".pdf,.txt,.zip,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.hwp,.hwpx,.rtf,.png,.jpg,.jpeg,.gif,.webp,.php,.py,.cgi" required><button type="submit">파일 제출</button><p class="notice">첨부파일을 포함하여 16MB 이내로 제출해주세요.</p></form>
   <a class="go-list lab-go-list" href="{{ url_for('task_board') }}">목록으로</a>
 </div></div></div>
 {% endblock %}

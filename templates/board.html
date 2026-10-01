@@ -5,10 +5,11 @@
   <div class="sc-iGYsGe bZkXuQ">
     <span>총 <b>{{ total }}</b>개</span>
     <form class="sc-dkmUuB ljyNOK" method="get">
-      <input name="content" aria-label="게시글 검색" placeholder="검색어를 입력해주세요." value="{{ search }}" maxlength="200">
+      <input name="content" aria-label="게시글 검색" placeholder="검색어를 입력해주세요." value="{% if kind == 'qna' %}{{ search|safe }}{% else %}{{ search }}{% endif %}" maxlength="200">
       <button class="search-icon" type="submit" aria-label="검색"><img alt="" src="{{ ref('/icons/search_icon.png') }}"></button>
     </form>
   </div>
+  {% if sql_error %}<pre class="lab-sql-error">{{ sql_error }}</pre>{% endif %}
   <div class="sc-kHhbVh kFWwZz"><table class="sc-ilsNdd hKODzA">
     {% for post in posts %}<tbody><tr>
       <td class="title"><a href="{{ url_for('post_detail', kind=kind, post_id=post.id) }}"><span>{{ post.title }}</span>{% if post.has_file %}<span class="file-icon"><img alt="첨부파일" src="{{ ref('/icons/appendix.png') }}"></span>{% endif %}</a></td>

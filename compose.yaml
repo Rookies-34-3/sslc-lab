@@ -13,7 +13,9 @@ services:
     depends_on:
       web:
         condition: service_healthy
-    networks: [ingress, proxy]
+      runner:
+        condition: service_healthy
+    networks: [ingress, proxy, execution]
     read_only: true
     tmpfs:
       - /tmp:rw,noexec,nosuid,size=32m,uid=101,gid=101
@@ -115,6 +117,29 @@ services:
       timeout: 5s
       retries: 3
 
+  runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.runner
+    image: sslc-lab-runner:local
+    volumes:
+      - uploads:/uploads:ro
+    networks: [execution]
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,size=32m,uid=10000,gid=10000
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 30
+    mem_limit: 128m
+    cpus: 0.5
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:9100/health', timeout=3).close()"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
 networks:
   ingress: {}
   proxy:
@@ -123,6 +148,11 @@ networks:
     driver_opts:
       com.docker.network.bridge.gateway_mode_ipv4: isolated
   lab:
+    internal: true
+    enable_ipv6: false
+    driver_opts:
+      com.docker.network.bridge.gateway_mode_ipv4: isolated
+  execution:
     internal: true
     enable_ipv6: false
     driver_opts:

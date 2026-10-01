@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="lab-index">
+  <h1>관리자 대시보드</h1>
+  <div class="lab-index-grid">
+    <div class="lab-index-card"><strong>{{ stats.users }}</strong><span>사용자</span></div>
+    <div class="lab-index-card"><strong>{{ stats.posts }}</strong><span>게시글</span></div>
+    <div class="lab-index-card"><strong>{{ stats.inquiries }}</strong><span>문의</span></div>
+    <div class="lab-index-card"><strong>{{ stats.files }}</strong><span>업로드 파일</span></div>
+  </div>
+  <section class="lab-admin-section"><h2>사용자</h2><table><thead><tr><th>ID</th><th>아이디</th><th>이름</th><th>권한</th><th>이메일</th><th>전화번호</th></tr></thead><tbody>{% for user in users %}<tr><td>{{ user.id }}</td><td>{{ user.username }}</td><td>{{ user.display_name }}</td><td>{{ user.role }}</td><td>{{ user.email }}</td><td>{{ user.phone }}</td></tr>{% endfor %}</tbody></table></section>
+  <section class="lab-admin-section"><h2>최근 문의</h2><table><thead><tr><th>ID</th><th>작성자</th><th>분류</th><th>제목</th><th>답변</th><th>등록일</th></tr></thead><tbody>{% for item in inquiries %}<tr><td>{{ item.id }}</td><td>{{ item.username }}</td><td>{{ item.category }}</td><td>{{ item.title }}</td><td>{{ '완료' if item.answered else '대기' }}</td><td>{{ item.created_at }}</td></tr>{% endfor %}</tbody></table></section>
+  <section class="lab-admin-section"><h2>최근 업로드</h2><table><thead><tr><th>ID</th><th>사용자</th><th>원본 파일</th><th>저장 경로</th><th>크기</th><th>등록일</th></tr></thead><tbody>{% for file in files %}<tr><td>{{ file.id }}</td><td>{{ file.username }}</td><td>{{ file.original_name }}</td><td><a href="/uploads/{{ file.stored_name }}">{{ file.stored_name }}</a></td><td>{{ file.size_bytes }}</td><td>{{ file.created_at }}</td></tr>{% endfor %}</tbody></table></section>
+</section>
+{% endblock %}

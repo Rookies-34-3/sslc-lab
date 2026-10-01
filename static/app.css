@@ -95,6 +95,11 @@ td.title .file-icon { position: absolute; right: 0; top: 50%; transform: transla
 .lab-index-card:hover { border-color: #ec7422; box-shadow: 0 5px 18px #0001; }
 .lab-index-card strong { color: #ec7422; font-size: 20px; }
 .lab-index-card span { color: #777; font-size: 14px; line-height: 1.5; }
+.lab-sql-error { padding: 16px; overflow-x: auto; color: #a3261b; background: #fff0ed; border: 1px solid #e5a49d; white-space: pre-wrap; }
+.lab-admin-section { margin: 25px 0; overflow-x: auto; }
+.lab-admin-section table { width: 100%; border-collapse: collapse; background: white; }
+.lab-admin-section th, .lab-admin-section td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+.lab-admin-section th { background: #f3f3f3; }
 @media (max-width: 800px) {
   .lab-customer-layout { grid-template-columns: 1fr; }
   .lab-customer-nav { flex-direction: row; overflow-x: auto; }

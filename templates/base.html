@@ -17,7 +17,7 @@
       {% include 'reference/header.html' %}
       <div id="user-menu" class="lab-user-menu" hidden>
         <p>{{ current_user.display_name }}</p><small>{{ current_user.username }}</small>
-        <a class="lab-mypage-link" href="{{ url_for('mypage') }}">내 정보 관리</a>
+        <a class="lab-mypage-link" href="{{ url_for('mypage', user_id=current_user.id) }}">내 정보 관리</a>
         <form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">Signout</button></form>
       </div>
     {% endif %}

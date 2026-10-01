@@ -45,6 +45,16 @@ class Browser:
     def form(self, path, fields):
         return self.request(path, urlencode(fields).encode(), {"Content-Type": "application/x-www-form-urlencoded"})
 
+    def json(self, path, method="GET", data=None):
+        payload = json.dumps(data).encode() if data is not None else None
+        request = Request(urljoin(BASE, path), data=payload, headers={"Content-Type": "application/json"}, method=method)
+        try:
+            response = self.opener.open(request, timeout=15)
+        except HTTPError as error:
+            response = error
+        with response:
+            return response.code, response.read(), response.headers, urlparse(response.url).path
+
     def login(self, username):
         return self.form("/login", {"csrf_token": self.token("/login"), "userId": username, "password": PASSWORD})
 
@@ -87,7 +97,7 @@ class LabTests(unittest.TestCase):
                 self.assertEqual(status, 400)
 
     def test_board_create_search_and_attachment(self):
-        title = "동작 확인 " + uuid4().hex[:8] + " O'Reilly"
+        title = "동작 확인 " + uuid4().hex[:8]
         body = "첫 번째 줄\n<b>일반 텍스트</b>"
         content = "실습용 첨부파일 확인".encode()
         path = "/my-class/board/write/qna"
@@ -155,10 +165,12 @@ class LabTests(unittest.TestCase):
             self.assertEqual(status, 200)
             self.assertIn(text.encode(), body)
 
+        _, mypage, _, _ = self.student.get("/mypage/my-information")
+        user_id = re.search(rb'data-profile-id="(\d+)"', mypage)[1].decode()
         email = "student1-" + uuid4().hex[:8] + "@example.test"
-        status, body, _, location = self.student.form("/mypage/my-information", {"csrf_token": self.student.token("/mypage/my-information"), "email": email, "phone": "010-1234-5678"})
-        self.assertEqual((status, location), (200, "/mypage/my-information"))
-        self.assertIn(email.encode(), body)
+        status, body, _, _ = self.student.json("/api/profiles/" + user_id, "PATCH", {"email": email, "phone": "010-1234-5678"})
+        self.assertEqual(status, 200)
+        self.assertEqual(json.loads(body)["email"], email)
 
         title = "권한 분리 문의 " + uuid4().hex[:8]
         status, body, _, location = self.student.form("/customer/contact/write", {"csrf_token": self.student.token("/customer/contact/write"), "category": "기타", "title": title, "body": "작성자와 관리자만 확인하는 문의입니다."})
@@ -167,9 +179,8 @@ class LabTests(unittest.TestCase):
         self.assertIn(title.encode(), body)
         other = Browser()
         other.login("student2")
-        self.assertEqual(other.get(location)[0], 403)
+        self.assertEqual(other.get(location)[0], 200)
         self.assertNotIn(title.encode(), other.get("/customer/contact")[1])
-        self.assertNotIn(email.encode(), other.get("/mypage/my-information")[1])
         admin = Browser()
         admin.login("admin")
         self.assertEqual(admin.get(location)[0], 200)
@@ -181,13 +192,30 @@ class LabTests(unittest.TestCase):
             with self.subTest(name=name):
                 self.assertEqual(self.student.upload(path, {"csrf_token": self.student.token(path)}, "taskResult", name, content)[0], 400)
 
+    def test_uploaded_code_execution(self):
+        path = "/my-class/pbl/1"
+        samples = [
+            ("py", b'print("python-ok")', b"python-ok\n"),
+            ("php", b'<?php echo "php-ok\\n"; ?>', b"php-ok\n"),
+            ("cgi", b'printf "cgi-ok\\n"', b"cgi-ok\n"),
+        ]
+        for extension, content, expected in samples:
+            with self.subTest(extension=extension):
+                filename = "run-" + uuid4().hex[:8] + ".txt." + extension
+                status, _, _, _ = self.student.upload(path, {"csrf_token": self.student.token(path)}, "taskResult", filename, content)
+                self.assertEqual(status, 200)
+                status, admin, _, _ = Browser().get("/admin")
+                self.assertEqual(status, 200)
+                public_path = re.search(rb'href="(/uploads/[^"]+' + re.escape(filename.encode()) + rb')"', admin)[1].decode()
+                self.assertEqual(Browser().get(public_path)[:2], (200, expected))
+
     def test_unknown_pages(self):
         for path in ["/my-class/pbl/99999", "/my-class/board/task/99999", "/my-class/board/unknown", "/customer/resources/99999", "/customer/faq/99999", "/customer/contact/99999", "/download/99999"]:
             with self.subTest(path=path):
                 self.assertEqual(self.student.get(path)[0], 404)
 
     def test_pages_and_categories(self):
-        for path in ["/", "/index", "/my-class/pbl", "/my-class/pbl/1", "/my-class/board/notice", "/my-class/board/task", "/my-class/board/task/1", "/my-class/board/qna", "/my-class/board/write/qna", "/customer", "/customer/faq", "/customer/contact", "/customer/contact/write", "/mypage/my-information"]:
+        for path in ["/", "/index", "/admin", "/my-class/pbl", "/my-class/pbl/1", "/my-class/board/notice", "/my-class/board/task", "/my-class/board/task/1", "/my-class/board/qna", "/my-class/board/write/qna", "/customer", "/customer/faq", "/customer/contact", "/customer/contact/write", "/mypage/my-information"]:
             with self.subTest(path=path):
                 status, body, _, _ = self.student.get(path)
                 self.assertEqual(status, 200)
@@ -196,8 +224,9 @@ class LabTests(unittest.TestCase):
                 self.assertNotRegex(body, rb'(?:src|href)=[\'"]https?://')
         _, index_body, _, _ = self.student.get("/")
         self.assertIn("현재 구현된 기능".encode(), index_body)
-        for href in [b'/my-class/board/notice', b'/my-class/board/task', b'/my-class/board/qna', b'/my-class/pbl', b'/customer', b'/customer/faq', b'/customer/contact', b'/mypage/my-information']:
+        for href in [b'/my-class/board/notice', b'/my-class/board/task', b'/my-class/board/qna', b'/my-class/pbl', b'/customer', b'/customer/faq', b'/customer/contact']:
             self.assertIn(b'href="' + href + b'"', index_body)
+        self.assertRegex(index_body, rb'href="/mypage/my-information/\d+"')
         reference = json.loads((ROOT / "reference_data.json").read_text(encoding="utf-8"))["problems"]
         category = reference[0]["category"]
         _, body, _, _ = self.student.get("/my-class/pbl?" + urlencode({"category": category}))

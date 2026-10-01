@@ -59,6 +59,12 @@ def query(sql, values=(), one=False):
         return cursor.fetchone() if one else cursor.fetchall()
 
 
+def unsafe_query(sql, one=False):
+    with db().cursor() as cursor:
+        cursor.execute(sql)
+        return cursor.fetchone() if one else cursor.fetchall()
+
+
 @app.teardown_appcontext
 def close_db(error=None):
     #flask 종료시 db 종료
@@ -88,7 +94,11 @@ def security_headers(response):
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Referrer-Policy"] = "same-origin"
-    response.headers["Content-Security-Policy"] = "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    vulnerable_xss = request.endpoint == "login" or (
+        request.endpoint == "board" and request.view_args and request.view_args.get("kind") == "qna"
+    )
+    script_policy = "script-src 'self' 'unsafe-inline';" if vulnerable_xss else "script-src 'self';"
+    response.headers["Content-Security-Policy"] = "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; " + script_policy + " connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
     if request.endpoint != "static":
         response.headers["Cache-Control"] = "no-store"
     return response
@@ -123,14 +133,17 @@ def my_class_root():
 @login_required
 def feature_index():
     links = [
-        ("공지사항", url_for("board", kind="notice"), "공지 검색과 상세 조회"),
-        ("과제", url_for("task_board"), "과제 상세와 결과 파일 제출"),
-        ("학습게시판", url_for("board", kind="qna"), "강의 질문 작성과 첨부파일"),
-        ("PBL", url_for("pbl"), "문제 목록, 상세와 결과 파일 제출"),
-        ("자료실", url_for("resources"), "교육 자료 목록과 검색"),
-        ("FAQ", url_for("faq"), "자주 묻는 질문 목록과 검색"),
-        ("문의하기", url_for("inquiries"), "개인 문의 작성, 조회와 관리자 답변"),
-        ("마이페이지", url_for("mypage"), "이메일과 전화번호 수정"),
+        ("공지사항", url_for("board", kind="notice"), "취약점 미적용 · SQL Injection 비교용 안전 검색"),
+        ("과제", url_for("task_board"), "파일 확장자 우회 · 파일명 경로 이동 · 업로드 코드 실행"),
+        ("학습게시판", url_for("board", kind="qna"), "SQL Injection · Reflected XSS · 파일 업로드 취약점"),
+        ("PBL", url_for("pbl"), "파일 확장자 우회 · 파일명 경로 이동 · 업로드 코드 실행"),
+        ("자료실", url_for("resources"), "취약점 미적용"),
+        ("FAQ", url_for("faq"), "취약점 미적용"),
+        ("문의하기", url_for("inquiries"), "비밀글 권한 검증 우회 · 파일 업로드 취약점"),
+        ("마이페이지", url_for("mypage", user_id=g.user["id"]), "IDOR · REST API 사용자 프로필 조회/수정"),
+        ("로그인", url_for("login"), "Reflected XSS · 로그인 실패 메시지"),
+        ("업로드 디렉터리", "/uploads/", "디렉터리 인덱싱 · 인증 없는 파일 접근 · PHP/Python/CGI 실행"),
+        ("관리자 페이지", url_for("admin_dashboard"), "인증 없는 관리자 페이지 노출"),
     ]
     return render_page("index.html", "notice", "index", links=links)
 
@@ -139,14 +152,15 @@ def feature_index():
 def login():
 #로그인
     if request.method == "POST":
-        user = query("SELECT * FROM users WHERE username=%s", (request.form.get("userId", "")[:80],), one=True)
+        username = request.form.get("userId", "")[:80]
+        user = query("SELECT * FROM users WHERE username=%s", (username,), one=True)
         if user and check_password_hash(user["password_hash"], request.form.get("password", "")):
             session.clear()
             session["user_id"] = user["id"]
             session["csrf_token"] = secrets.token_urlsafe(32)
             session.permanent = True
             return redirect(url_for("board", kind="notice"))
-        flash("아이디 또는 비밀번호를 확인해주세요.", "error")
+        flash(username + " 계정의 아이디 또는 비밀번호를 확인해주세요.", "error")
     elif g.user:
         return redirect(url_for("board", kind="notice"))
     return render_page("login.html", "login", "login")
@@ -187,7 +201,7 @@ def task_detail(task_id):
         abort(404)
     submission_key = ASSIGNMENT_FILE_OFFSET + task_id
     if request.method == "POST":
-        if not save_upload(request.files.get("taskResult"), problem_id=submission_key):
+        if not save_upload(request.files.get("taskResult"), problem_id=submission_key, area="task"):
             abort(400, description="제출할 파일을 선택해주세요.")
         flash("과제 파일 제출을 완료했어요.", "success")
         return redirect(url_for("task_detail", task_id=task_id))
@@ -209,17 +223,30 @@ def board(kind):
     check_kind(kind)
     search = request.args.get("content", "").strip()[:200]
     page = max(1, request.args.get("page", 1, type=int))
-    values = (kind, "%" + search + "%", "%" + search + "%")
-    where = "p.kind=%s AND (p.title LIKE %s OR p.body LIKE %s)"
-    total = query("SELECT COUNT(*) AS n FROM posts p WHERE " + where, values, one=True)["n"]
-    pages = max(1, math.ceil(total / 10))
-    page = min(page, pages)
-    posts = query(
-        "SELECT p.*, u.display_name, EXISTS(SELECT 1 FROM files f WHERE f.post_id=p.id) AS has_file "
-        "FROM posts p JOIN users u ON u.id=p.author_id WHERE " + where + " ORDER BY p.created_at DESC, p.id DESC LIMIT 10 OFFSET %s",
-        (*values, (page - 1) * 10),
-    )
-    return render_page("board.html", kind, kind, kind=kind, heading="공지사항" if kind == "notice" else "강의 질문", posts=posts, total=total, search=search, page=page, pages=pages)
+    try:
+        if kind == "notice":
+            values = (kind, "%" + search + "%", "%" + search + "%")
+            where = "p.kind=%s AND (p.title LIKE %s OR p.body LIKE %s)"
+            total = query("SELECT COUNT(*) AS n FROM posts p WHERE " + where, values, one=True)["n"]
+            pages = max(1, math.ceil(total / 10))
+            page = min(page, pages)
+            posts = query(
+                "SELECT p.*, u.display_name, EXISTS(SELECT 1 FROM files f WHERE f.post_id=p.id) AS has_file "
+                "FROM posts p JOIN users u ON u.id=p.author_id WHERE " + where + " ORDER BY p.created_at DESC, p.id DESC LIMIT 10 OFFSET %s",
+                (*values, (page - 1) * 10),
+            )
+        else:
+            where = "p.kind='qna' AND (p.title LIKE '%" + search + "%' OR p.body LIKE '%" + search + "%')"
+            total = unsafe_query("SELECT COUNT(*) AS n FROM posts p WHERE " + where, one=True)["n"]
+            pages = max(1, math.ceil(total / 10))
+            page = min(page, pages)
+            posts = unsafe_query(
+                "SELECT p.*, u.display_name, EXISTS(SELECT 1 FROM files f WHERE f.post_id=p.id) AS has_file "
+                "FROM posts p JOIN users u ON u.id=p.author_id WHERE " + where + " ORDER BY p.created_at DESC, p.id DESC LIMIT 10 OFFSET " + str((page - 1) * 10)
+            )
+    except pymysql.MySQLError as error:
+        return render_page("board.html", kind, kind, kind=kind, heading="강의 질문", posts=[], total=0, search=search, page=1, pages=1, sql_error=str(error)), 500
+    return render_page("board.html", kind, kind, kind=kind, heading="공지사항" if kind == "notice" else "강의 질문", posts=posts, total=total, search=search, page=page, pages=pages, sql_error=None)
 
 
 @app.get("/my-class/board/<kind>/<int:post_id>")
@@ -235,18 +262,24 @@ def post_detail(kind, post_id):
     return render_page("post.html", "detail", kind, kind=kind, post=post, attachments=attachments)
 
 
-def save_upload(upload, *, post_id=None, problem_id=None):
+def save_upload(upload, *, post_id=None, problem_id=None, area="files"):
     if not upload or not upload.filename:
         return None
-    name = upload.filename.replace("\\", "/").rsplit("/", 1)[-1]
+    name = upload.filename.replace("\\", "/")
     if not name or len(name) > 180 or any(ord(char) < 32 for char in name):
         abort(400, description="파일 이름을 확인해주세요.")
-    suffix = name.rsplit(".", 1)[-1].lower() if "." in name else ""
-    if suffix not in EXTENSIONS:
+    if not any("." + extension in name.lower() for extension in EXTENSIONS):
         abort(400, description="지원하는 문서·이미지·압축 파일을 선택해주세요.")
     UPLOADS.mkdir(parents=True, exist_ok=True)
-    stored_name = uuid4().hex + "." + suffix
-    target = UPLOADS / stored_name
+    upload_root = UPLOADS.resolve()
+    candidate = upload_root / str(g.user["id"]) / area / name
+    target = candidate.with_name(uuid4().hex[:8] + "-" + candidate.name).resolve()
+    if upload_root not in target.parents:
+        abort(400, description="파일 경로를 확인해주세요.")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    stored_name = target.relative_to(upload_root).as_posix()
+    if len(stored_name) > 80:
+        abort(400, description="파일 이름을 줄여주세요.")
     try:
         with target.open("xb") as stream:
             upload.save(stream)
@@ -277,7 +310,7 @@ def write_post(kind):
             with db().cursor() as cursor:
                 cursor.execute("INSERT INTO posts (kind, author_id, title, body) VALUES (%s,%s,%s,%s)", (kind, g.user["id"], title, body))
                 post_id = cursor.lastrowid
-            save_upload(request.files.get("file"), post_id=post_id)
+            save_upload(request.files.get("file"), post_id=post_id, area=kind)
             db().commit()
         except BaseException:
             db().rollback()
@@ -304,7 +337,7 @@ def problem_detail(problem_id):
     if not problem:
         abort(404)
     if request.method == "POST":
-        if not save_upload(request.files.get("taskResult"), problem_id=problem_id):
+        if not save_upload(request.files.get("taskResult"), problem_id=problem_id, area="pbl"):
             abort(400, description="제출할 파일을 선택해주세요.")
         flash("파일 제출을 완료했어요.", "success")
         return redirect(url_for("problem_detail", problem_id=problem_id))
@@ -359,8 +392,6 @@ def get_inquiry(inquiry_id):
     )
     if not inquiry:
         abort(404)
-    if g.user["role"] != "admin" and inquiry["owner_id"] != g.user["id"]:
-        abort(403)
     return inquiry
 
 
@@ -401,7 +432,7 @@ def write_inquiry():
             with db().cursor() as cursor:
                 cursor.execute("INSERT INTO inquiries (owner_id, category, title, body) VALUES (%s,%s,%s,%s)", (g.user["id"], category, title, body))
                 inquiry_id = cursor.lastrowid
-            save_upload(request.files.get("file"), problem_id=INQUIRY_FILE_OFFSET + inquiry_id)
+            save_upload(request.files.get("file"), problem_id=INQUIRY_FILE_OFFSET + inquiry_id, area="contact")
             db().commit()
         except BaseException:
             db().rollback()
@@ -427,25 +458,45 @@ def inquiry_detail(inquiry_id):
     return render_page("inquiry_detail.html", "task", "support", page_title="문의하기", customer_active="contact", inquiry=inquiry, attachments=attachments)
 
 
-@app.route("/mypage/my-information", methods=["GET", "POST"])
+@app.get("/mypage/my-information")
 @login_required
-def mypage():
-    if request.method == "POST":
-        email = request.form.get("email", "").strip()
-        phone = request.form.get("phone", "").strip()
+def mypage_root():
+    return redirect(url_for("mypage", user_id=g.user["id"]))
+
+
+@app.get("/mypage/my-information/<int:user_id>")
+@login_required
+def mypage(user_id):
+    return render_page("mypage.html", "mypage", "mypage", page_title="내 정보 관리", profile_user_id=user_id)
+
+
+@app.route("/api/profiles/<int:user_id>", methods=["GET", "PATCH"])
+def profile_api(user_id):
+    if not g.user:
+        return jsonify(error="로그인이 필요합니다."), 401
+    profile = query(
+        "SELECT u.id AS user_id, u.username, u.display_name, u.role, COALESCE(p.email, '') AS email, COALESCE(p.phone, '') AS phone "
+        "FROM users u LEFT JOIN user_profiles p ON p.user_id=u.id WHERE u.id=%s",
+        (user_id,), one=True,
+    )
+    if not profile:
+        return jsonify(error="사용자를 찾을 수 없습니다."), 404
+    if request.method == "PATCH":
+        data = request.get_json(silent=True) or {}
+        email = str(data.get("email", "")).strip()
+        phone = str(data.get("phone", "")).strip()
         if email and (len(email) > 254 or email.count("@") != 1 or any(char.isspace() for char in email)):
-            abort(400, description="이메일 주소를 확인해주세요.")
+            return jsonify(error="이메일 주소를 확인해주세요."), 400
         if not re.fullmatch(r"[0-9-]{0,20}", phone):
-            abort(400, description="전화번호는 숫자와 하이픈만 입력해주세요.")
+            return jsonify(error="전화번호는 숫자와 하이픈만 입력해주세요."), 400
         query(
             "INSERT INTO user_profiles (user_id, email, phone) VALUES (%s,%s,%s) "
             "ON DUPLICATE KEY UPDATE email=VALUES(email), phone=VALUES(phone)",
-            (g.user["id"], email, phone),
+            (user_id, email, phone),
         )
-        flash("회원정보를 변경했어요.", "success")
-        return redirect(url_for("mypage"))
-    profile = query("SELECT email, phone FROM user_profiles WHERE user_id=%s", (g.user["id"],), one=True) or {"email": "", "phone": ""}
-    return render_page("mypage.html", "mypage", "mypage", page_title="내 정보 관리", profile=profile)
+        profile["email"] = email
+        profile["phone"] = phone
+    return jsonify(profile)
 
 
 @app.get("/download/<int:file_id>")
@@ -459,6 +510,29 @@ def download(file_id):
     if attachment["post_id"] is not None and not query("SELECT id FROM posts WHERE id=%s", (attachment["post_id"],), one=True):
         abort(404)
     return send_from_directory(UPLOADS, attachment["stored_name"], as_attachment=True, download_name=attachment["original_name"], mimetype="application/octet-stream")
+
+
+@app.get("/admin")
+def admin_dashboard():
+    stats = {
+        "users": query("SELECT COUNT(*) AS n FROM users", one=True)["n"],
+        "posts": query("SELECT COUNT(*) AS n FROM posts", one=True)["n"],
+        "inquiries": query("SELECT COUNT(*) AS n FROM inquiries", one=True)["n"],
+        "files": query("SELECT COUNT(*) AS n FROM files", one=True)["n"],
+    }
+    users = query(
+        "SELECT u.id, u.username, u.display_name, u.role, COALESCE(p.email, '') AS email, COALESCE(p.phone, '') AS phone "
+        "FROM users u LEFT JOIN user_profiles p ON p.user_id=u.id ORDER BY u.id"
+    )
+    inquiries = query(
+        "SELECT i.id, i.title, i.category, i.created_at, u.username, i.answer IS NOT NULL AS answered "
+        "FROM inquiries i JOIN users u ON u.id=i.owner_id ORDER BY i.id DESC LIMIT 10"
+    )
+    files = query(
+        "SELECT f.id, f.original_name, f.stored_name, f.size_bytes, f.created_at, u.username "
+        "FROM files f JOIN users u ON u.id=f.owner_id ORDER BY f.id DESC LIMIT 20"
+    )
+    return render_page("admin.html", "notice", "admin", page_title="관리자 페이지", stats=stats, users=users, inquiries=inquiries, files=files)
 
 
 @app.get("/health")

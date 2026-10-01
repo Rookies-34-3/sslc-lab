@@ -1,0 +1,12 @@
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends php-cli \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --gid 10000 lab \
+    && useradd --uid 10000 --gid lab --no-create-home lab
+COPY upload_runner.py /app/upload_runner.py
+USER 10000:10000
+EXPOSE 9100
+CMD ["python", "/app/upload_runner.py"]
