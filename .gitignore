@@ -5,3 +5,6 @@ __pycache__/
 instance/
 output/
 .playwright-cli/
+docs/*.mhtml
+requirements-dev.txt
+tools/import_reference.py
