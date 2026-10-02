@@ -34,7 +34,7 @@ INQUIRY_FILE_OFFSET = 2_000_000
 INQUIRY_CATEGORIES = ("출결문의", "온라인 교육", "오프라인 교육", "PBL/과제", "프로젝트", "기타")
 CONTENT_LIMIT = 256 * 1024
 THUMBNAIL_LIMIT = 2 * 1024 * 1024
-THUMBNAIL_TYPES = {"image/png": "png", "image/jpeg": "jpg", "image/gif": "gif", "image/webp": "webp"}
+THUMBNAIL_TYPES = {"image/png": "png", "image/jpeg": "jpg", "image/gif": "gif", "image/webp": "webp", "image/svg+xml": "svg"}
 
 app = Flask(__name__)
 app.config.update(
@@ -206,7 +206,7 @@ def fetch_external_content(url):
 
     extension = THUMBNAIL_TYPES.get(thumbnail["content_type"])
     if not extension:
-        raise ValueError("PNG, JPEG, GIF, WebP 썸네일만 가져올 수 있습니다.")
+        raise ValueError("PNG, JPEG, GIF, WebP, SVG 썸네일만 가져올 수 있습니다.")
     return {
         "title": title[:200],
         "source_url": page["final_url"],

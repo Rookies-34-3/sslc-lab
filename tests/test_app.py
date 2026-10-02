@@ -236,8 +236,8 @@ class LabTests(unittest.TestCase):
             "action": "preview",
         })
         self.assertEqual(status, 200)
-        self.assertIn("내부 전용 클라우드 보안 콘텐츠".encode(), preview)
-        self.assertIn(b"data:image/png;base64,", preview)
+        self.assertIn(b"SSRF SUCCESS - internal-service reached", preview)
+        self.assertIn(b"data:image/svg+xml;base64,", preview)
 
         title = "SSRF 콘텐츠 " + uuid4().hex[:8]
         status, listing, _, location = self.student.form(path, {
@@ -248,11 +248,12 @@ class LabTests(unittest.TestCase):
         })
         self.assertEqual((status, location), (200, "/pre-course/list"))
         self.assertIn(title.encode(), listing)
-        thumbnail = re.search(rb'src="(/uploads/knowledge/[^"]+\.png)"', listing)[1].decode()
+        thumbnail = re.search(rb'src="(/uploads/knowledge/[^"]+\.svg)"', listing)[1].decode()
         status, image, headers, _ = self.student.get(thumbnail)
         self.assertEqual(status, 200)
-        self.assertTrue(image.startswith(b"\x89PNG\r\n\x1a\n"))
-        self.assertIn("image/png", headers["Content-Type"])
+        self.assertIn(b"SSRF SUCCESS", image)
+        self.assertIn(b"SSLC{internal_network_access}", image)
+        self.assertIn("image/svg+xml", headers["Content-Type"])
 
     def test_unknown_pages(self):
         for path in ["/my-class/pbl/99999", "/my-class/board/task/99999", "/my-class/board/unknown", "/customer/resources/99999", "/customer/faq/99999", "/customer/contact/99999", "/download/99999"]:

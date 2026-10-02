@@ -95,7 +95,7 @@ docker compose up -d --no-deps --wait web
 
 저장 파일명에는 충돌 방지를 위한 임의 접두사가 붙습니다. 공지사항 첨부파일도 공통 업로드 함수를 사용하므로 파일 업로드 취약점이 적용되며, 글 작성은 관리자만 가능합니다. `/download/<file_id>`는 로그인이 필요하고 과제·PBL·문의 첨부파일의 소유자 또는 관리자 권한을 확인합니다. `/uploads/`의 직접 접근에는 이 검사가 없어 업로드·목록 노출·파일 접근을 연계해 볼 수 있습니다. 디렉터리 인덱싱 자체는 목록 노출이고, 코드 실행은 nginx의 실행 파일 경로와 `runner`가 담당합니다.
 
-SSRF는 지식컨텐츠의 `외부 콘텐츠 추가하기`에서 실습합니다. `http://internal-service:9000/course`를 입력하고 `썸네일 가져오기`를 누르면 서버가 내부 HTML의 `og:image`를 읽고 내부 전용 이미지를 다시 요청합니다. 가져온 이미지는 등록할 때 `/uploads/knowledge/`에 저장되어 새 카드의 썸네일로 표시됩니다. `http`와 `https`만 받지만 대상 호스트와 IP 대역은 검사하지 않습니다. web 컨테이너에는 외부 네트워크를 연결하지 않았고 `internal-service`도 호스트 포트를 공개하지 않으므로 요청 범위는 격리된 Docker 네트워크 안으로 제한됩니다. 포트 스캐너는 아직 구현하지 않았습니다. 인증 누락은 `/admin`과 `/uploads/`에서, 인증된 사용자의 권한 검증 누락은 문의 상세와 마이페이지 API에서 실습합니다.
+SSRF는 지식컨텐츠의 `외부 콘텐츠 추가하기`에서 실습합니다. `http://internal-service:9000/course`를 입력하고 `썸네일 가져오기`를 누르면 서버가 내부 HTML의 `og:image`를 읽고 `/ssrf-proof.svg`를 다시 요청합니다. 성공하면 미리보기 이미지에 `SSRF SUCCESS`, `internal-service:9000 reached`, `SSLC{internal_network_access}`가 표시됩니다. 가져온 이미지는 등록할 때 `/uploads/knowledge/`에 저장되어 새 카드의 썸네일로 표시됩니다. `http`와 `https`만 받지만 대상 호스트와 IP 대역은 검사하지 않습니다. web 컨테이너에는 외부 네트워크를 연결하지 않았고 `internal-service`도 호스트 포트를 공개하지 않으므로 요청 범위는 격리된 Docker 네트워크 안으로 제한됩니다. 포트 스캐너는 아직 구현하지 않았습니다. 인증 누락은 `/admin`과 `/uploads/`에서, 인증된 사용자의 권한 검증 누락은 문의 상세와 마이페이지 API에서 실습합니다.
 
 ## 화면 자료
 
@@ -120,7 +120,7 @@ python -m venv .venv
   └─ nginx :8080
        ├─ web :8000 (Gunicorn + Flask)
        │    ├─ db :3306 (MySQL)
-       │    └─ internal-service :9000 (`/course`, `/internal-thumbnail.png` SSRF 실습 응답)
+       │    └─ internal-service :9000 (`/course`, `/ssrf-proof.svg` SSRF 실습 응답)
        ├─ /uploads/ (파일 제공·디렉터리 인덱싱)
        └─ runner :9100 (업로드된 PHP·Python·CGI 실행)
 ```

@@ -1,7 +1,6 @@
 """Internal HTTP responses used by the SSRF lab."""
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from pathlib import Path
 from urllib.parse import urlsplit
 
 
@@ -15,15 +14,24 @@ RESPONSES = {
         "training_secret": "SSLC{internal_service_reached}",
     },
 }
-ROOT = Path(__file__).resolve().parent
 COURSE_HTML = """<!doctype html>
 <html lang="ko"><head>
 <meta charset="utf-8">
-<meta property="og:title" content="내부 전용 클라우드 보안 콘텐츠">
-<meta property="og:image" content="/internal-thumbnail.png">
-<title>내부 전용 콘텐츠</title>
-</head><body>Docker 내부에서만 제공되는 실습용 콘텐츠입니다.</body></html>
+<meta property="og:title" content="SSRF SUCCESS - internal-service reached">
+<meta property="og:image" content="/ssrf-proof.svg">
+<title>SSRF SUCCESS</title>
+</head><body>internal-service:9000 reached</body></html>
 """.encode()
+PROOF_SVG = """<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<rect width="1200" height="630" rx="36" fill="#121722"/>
+<rect x="44" y="44" width="1112" height="542" rx="28" fill="#1d2636" stroke="#ff6b19" stroke-width="6"/>
+<circle cx="120" cy="120" r="28" fill="#35c46a"/>
+<text x="170" y="140" fill="#35c46a" font-family="Arial, sans-serif" font-size="42" font-weight="700">INTERNAL RESPONSE RECEIVED</text>
+<text x="600" y="300" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="92" font-weight="800">SSRF SUCCESS</text>
+<text x="600" y="390" text-anchor="middle" fill="#ff9a3d" font-family="Arial, sans-serif" font-size="44">internal-service:9000 reached</text>
+<rect x="226" y="448" width="748" height="82" rx="16" fill="#0b0f17"/>
+<text x="600" y="502" text-anchor="middle" fill="#ffffff" font-family="monospace" font-size="34">SSLC{internal_network_access}</text>
+</svg>""".encode()
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -40,9 +48,8 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/course":
             self.send_body(COURSE_HTML, "text/html; charset=utf-8")
             return
-        if path == "/internal-thumbnail.png":
-            body = (ROOT / "static/reference/d91483bc8b5242850ae4.png").read_bytes()
-            self.send_body(body, "image/png")
+        if path == "/ssrf-proof.svg":
+            self.send_body(PROOF_SVG, "image/svg+xml")
             return
         data = RESPONSES.get(path)
         if data is None:
