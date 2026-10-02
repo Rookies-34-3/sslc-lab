@@ -51,11 +51,10 @@ DB와 업로드 파일은 Docker named volume에 저장되어 컨테이너 재�
 
 문의 작성 화면의 `비밀글` 체크박스는 기본으로 선택되어 있습니다. 비밀글에만 자물쇠를 표시하고, 목록에서는 모든 사용자의 문의 제목을 볼 수 있습니다. 공개글 본문은 로그인한 사용자가 조회할 수 있습니다. 비밀글의 정상 링크에는 `secret` 쿼리가 붙으며 작성자와 관리자만 조회할 수 있지만, 해당 쿼리를 제거하면 권한 검사를 건너뜁니다. 기존 문의는 비밀글로 유지합니다.
 
-기존 DB에 문의 비밀글 컬럼과 외부 콘텐츠 테이블을 추가할 때는 아래 명령을 한 번 실행한 뒤 web을 다시 빌드합니다. 이미 반영된 항목은 건너뛰며, 기존 데이터를 삭제하지 않습니다.
+DB 스키마는 `db/init.sql` 하나로 관리합니다. 새 DB 볼륨에서는 MySQL 컨테이너가 자동으로 실행합니다. 기존 DB 볼륨에는 초기화 SQL을 다시 실행하지 않으므로, 누락된 테이블이나 문의 비밀글 컬럼을 추가하려면 아래 명령으로 적용합니다. 이미 존재하는 테이블은 유지하고 문의 비밀글 컬럼도 없을 때만 추가합니다.
 
 ```powershell
-Get-Content -Raw db/02-support.sql | docker compose exec -T db sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql --user=root --database=sslc_lab'
-Get-Content -Raw db/03-knowledge.sql | docker compose exec -T db sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql --user=root --database=sslc_lab'
+Get-Content -Raw -Encoding utf8 db/init.sql | docker compose exec -T db sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql --default-character-set=utf8mb4 --user=root --database=sslc_lab'
 docker compose build web
 docker compose up -d --no-deps --wait web
 ```
@@ -141,7 +140,7 @@ python -m unittest discover -s tests -v
 
 현재 기능 테스트 13개를 사용합니다. 로그인·로그아웃, CSRF, 게시글 작성·검색·첨부파일, 공지 작성 권한, 과제·PBL 제출과 애플리케이션 다운로드 권한, 문의 작성·목록 구분·다른 계정의 상세 조회, 프로필 API 수정, 관리자 페이지 접근, 업로드 형식과 PHP·Python·CGI 실행, 외부 콘텐츠 썸네일 SSRF와 카드 등록, 구현 화면 링크와 로컬 리소스를 확인합니다. 검증 과정에서 가상 게시글과 제출 파일이 추가됩니다. localhost에서만 실행하도록 제한되어 있습니다. 테스트 통과는 현재 기능 동작을 확인한 결과이며, 모든 취약점 유형이나 EC2 격리를 검증했다는 뜻은 아닙니다.
 
-주요 파일은 `app.py`, `compose.yaml`, `nginx/nginx.conf`, `Dockerfile.runner`, `upload_runner.py`, `db/init.sql`, `db/02-support.sql`, `db/03-knowledge.sql`, `templates/`, `static/app.css`, `static/app.js`입니다. 웹 서비스의 Python 라이브러리는 Flask, PyMySQL, Gunicorn이며 runner는 Python 표준 라이브러리와 PHP CLI를 사용합니다.
+주요 파일은 `app.py`, `compose.yaml`, `nginx/nginx.conf`, `Dockerfile.runner`, `upload_runner.py`, `db/init.sql`, `templates/`, `static/app.css`, `static/app.js`입니다. 웹 서비스의 Python 라이브러리는 Flask, PyMySQL, Gunicorn이며 runner는 Python 표준 라이브러리와 PHP CLI를 사용합니다.
 
 `app.py`는 Flask 앱 생성·설정, 공통 처리 등록, 인덱스, 헬스체크와 오류 화면을 담당하는 진입점입니다. 기능 코드는 `modules/`에서 관리합니다.
 

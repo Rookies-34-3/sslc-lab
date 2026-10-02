@@ -79,8 +79,6 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./db/init.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
-      - ./db/02-support.sql:/docker-entrypoint-initdb.d/02-support.sql:ro
-      - ./db/03-knowledge.sql:/docker-entrypoint-initdb.d/03-knowledge.sql:ro
     networks: [lab]
     read_only: true
     tmpfs:
