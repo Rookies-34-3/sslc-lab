@@ -173,18 +173,30 @@ class LabTests(unittest.TestCase):
         self.assertEqual(json.loads(body)["email"], email)
 
         title = "권한 분리 문의 " + uuid4().hex[:8]
-        status, body, _, location = self.student.form("/customer/contact/write", {"csrf_token": self.student.token("/customer/contact/write"), "category": "기타", "title": title, "body": "작성자와 관리자만 확인하는 문의입니다."})
+        status, body, _, location = self.student.form("/customer/contact/write", {"csrf_token": self.student.token("/customer/contact/write"), "category": "기타", "title": title, "body": "작성자와 관리자만 확인하는 문의입니다.", "is_secret": "1"})
         self.assertEqual(status, 200)
         self.assertRegex(location, r"/customer/contact/\d+$")
         self.assertIn(title.encode(), body)
+        self.assertIn(b'aria-label="' + "비밀글".encode() + b'"', body)
         other = Browser()
         other.login("student2")
+        self.assertEqual(other.get(location + "?secret=1")[0], 403)
         self.assertEqual(other.get(location)[0], 200)
-        self.assertNotIn(title.encode(), other.get("/customer/contact")[1])
+        self.assertIn(title.encode(), other.get("/customer/contact")[1])
         admin = Browser()
         admin.login("admin")
         self.assertEqual(admin.get(location)[0], 200)
         self.assertEqual(Browser().get(location)[3], "/login")
+
+        public_title = "공개 문의 " + uuid4().hex[:8]
+        status, body, _, public_location = self.student.form("/customer/contact/write", {"csrf_token": self.student.token("/customer/contact/write"), "category": "기타", "title": public_title, "body": "누구나 조회할 수 있는 공개 문의입니다."})
+        self.assertEqual(status, 200)
+        self.assertNotIn(b'aria-label="' + "비밀글".encode() + b'"', body)
+        self.assertEqual(other.get(public_location)[0], 200)
+        listing = other.get("/customer/contact")[1]
+        row = re.search(rb'<a class="lab-support-row" href="' + public_location.encode() + rb'">(.*?)</a>', listing, re.S)[1]
+        self.assertIn(public_title.encode(), row)
+        self.assertNotIn(b'la-lock', row)
 
     def test_upload_validation(self):
         path = "/my-class/pbl/1"

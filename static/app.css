@@ -70,6 +70,8 @@ td.title .file-icon { position: absolute; right: 0; top: 50%; transform: transla
 .lab-support-form, .lab-answer-form { display: grid; gap: 20px; max-width: 850px; margin: 0 auto; }
 .lab-support-form label, .lab-answer-form label { display: grid; gap: 8px; font-weight: 600; }
 .lab-support-form input, .lab-support-form select, .lab-support-form textarea, .lab-answer-form textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; font: inherit; }
+.lab-support-form .lab-secret-option { display: flex; align-items: center; gap: 8px; }
+.lab-secret-option input { width: 18px; height: 18px; margin: 0; padding: 0; }
 .lab-support-form textarea, .lab-answer-form textarea { min-height: 220px; resize: vertical; }
 .lab-support-form button, .lab-answer-form button { padding: 11px 18px; border: 0; border-radius: 5px; color: white; background: #ec7422; cursor: pointer; }
 .lab-support-form div { display: flex; justify-content: flex-end; align-items: center; gap: 20px; }

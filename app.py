@@ -139,7 +139,7 @@ def feature_index():
         ("PBL", url_for("pbl"), "파일 확장자 우회 · 파일명 경로 이동 · 업로드 코드 실행"),
         ("자료실", url_for("resources"), "취약점 미적용"),
         ("FAQ", url_for("faq"), "취약점 미적용"),
-        ("문의하기", url_for("inquiries"), "비밀글 권한 검증 우회 · 파일 업로드 취약점"),
+        ("문의하기", url_for("inquiries"), "비밀글 쿼리 파라미터 제거 권한 우회 · 파일 업로드 취약점"),
         ("마이페이지", url_for("mypage", user_id=g.user["id"]), "IDOR · REST API 사용자 프로필 조회/수정"),
         ("로그인", url_for("login"), "Reflected XSS · 로그인 실패 메시지"),
         ("업로드 디렉터리", "/uploads/", "디렉터리 인덱싱 · 인증 없는 파일 접근 · PHP/Python/CGI 실행"),
@@ -407,9 +407,6 @@ def inquiries():
     if category:
         clauses.append("i.category=%s")
         values.append(category)
-    if g.user["role"] != "admin":
-        clauses.append("i.owner_id=%s")
-        values.append(g.user["id"])
     rows = query(
         "SELECT i.*, u.display_name, EXISTS(SELECT 1 FROM files f WHERE f.problem_id=i.id+%s) AS has_file "
         "FROM inquiries i JOIN users u ON u.id=i.owner_id WHERE " + " AND ".join(clauses) + " ORDER BY i.created_at DESC, i.id DESC",
@@ -425,19 +422,20 @@ def write_inquiry():
         category = request.form.get("category", "")
         title = request.form.get("title", "").strip()
         body = request.form.get("body", "").strip()
+        is_secret = request.form.get("is_secret") == "1"
         if category not in INQUIRY_CATEGORIES or not title or len(title) > 200 or not body or len(body) > 10000:
             abort(400, description="분류, 제목과 내용을 확인해주세요.")
         db().begin()
         try:
             with db().cursor() as cursor:
-                cursor.execute("INSERT INTO inquiries (owner_id, category, title, body) VALUES (%s,%s,%s,%s)", (g.user["id"], category, title, body))
+                cursor.execute("INSERT INTO inquiries (owner_id, category, title, body, is_secret) VALUES (%s,%s,%s,%s,%s)", (g.user["id"], category, title, body, is_secret))
                 inquiry_id = cursor.lastrowid
             save_upload(request.files.get("file"), problem_id=INQUIRY_FILE_OFFSET + inquiry_id, area="contact")
             db().commit()
         except BaseException:
             db().rollback()
             raise
-        return redirect(url_for("inquiry_detail", inquiry_id=inquiry_id))
+        return redirect(url_for("inquiry_detail", inquiry_id=inquiry_id, secret=1) if is_secret else url_for("inquiry_detail", inquiry_id=inquiry_id))
     return render_page("inquiry_write.html", "task", "support", page_title="문의하기", customer_active="contact", categories=INQUIRY_CATEGORIES)
 
 
@@ -445,6 +443,8 @@ def write_inquiry():
 @login_required
 def inquiry_detail(inquiry_id):
     inquiry = get_inquiry(inquiry_id)
+    if inquiry["is_secret"] and "secret" in request.args and inquiry["owner_id"] != g.user["id"] and g.user["role"] != "admin":
+        abort(403)
     if request.method == "POST":
         if g.user["role"] != "admin":
             abort(403)
