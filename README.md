@@ -53,7 +53,7 @@ DB와 업로드 파일은 Docker named volume에 저장되어 컨테이너 재�
 기존 DB에 비밀글 컬럼을 추가할 때는 아래 명령을 한 번 실행한 뒤 web을 다시 빌드합니다. 이미 컬럼이 있으면 DB 변경을 건너뛰며, 기존 데이터를 삭제하지 않습니다.
 
 ```powershell
-docker compose exec -T db sh -c 'export MYSQL_PWD; MYSQL_PWD=$MYSQL_ROOT_PASSWORD; mysql --user=root --database=sslc_lab < /docker-entrypoint-initdb.d/02-support.sql'
+docker compose exec -T db sh -c 'export MYSQL_PWD; MYSQL_PWD=$MYSQL_ROOT_PASSWORD; exec mysql --user=root --database=sslc_lab' < db/02-support.sql
 docker compose build web
 docker compose up -d --no-deps --wait web
 ```
