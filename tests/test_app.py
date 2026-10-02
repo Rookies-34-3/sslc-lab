@@ -1,4 +1,24 @@
-"""Integration checks for the local Compose service. Run after docker compose up."""
+'''사이트 기능 테스트 
+실행: python -m unittest discover -s tests -v
+
+주요 검증 항목:
+- 로그인 / 로그아웃 / 세션 처리
+- CSRF 토큰 검증
+- 게시글 작성, 검색, 첨부파일 업로드 및 다운로드
+- 공지사항 관리자 권한 확인
+- 과제 / PBL 파일 제출 및 다운로드 권한
+- 문의글 및 비밀글 권한 우회 동작
+- 프로필 API 및 IDOR 실습 동작
+- 파일 업로드 검증
+- 업로드된 PHP / Python / CGI 코드 실행
+- SSRF를 통한 내부 서비스 접근
+- 존재하지 않는 페이지의 404 처리
+- 주요 페이지 렌더링 및 링크 확인
+- CSP, nosniff 등 응답 보안 헤더 확인
+- 로컬 CSS / 이미지 / 폰트 리소스 정상 여부 확인
+
+'''
+
 import html
 import json
 import os
