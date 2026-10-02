@@ -1,4 +1,19 @@
-"""Internal HTTP responses used by the SSRF lab."""
+""" SSRF 공격 대상 역할을 하는 Docker 내부 전용 HTTP 서버
+
+/course
+→ og:image 포함 HTML
+
+/ssrf-proof.svg
+→ SSRF 성공 증명 이미지
+
+/admin
+→ 내부 전용 데이터 접근 예시
+
+/health
+→ Docker 상태 확인
+
+
+"""
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlsplit
@@ -14,6 +29,8 @@ RESPONSES = {
         "training_secret": "SSLC{internal_service_reached}",
     },
 }
+
+
 COURSE_HTML = """<!doctype html>
 <html lang="ko"><head>
 <meta charset="utf-8">
