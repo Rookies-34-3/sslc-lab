@@ -22,22 +22,28 @@ from flask import Flask, abort, flash, g, jsonify, redirect, render_template, re
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
-ROOT = Path(__file__).resolve().parent                                                  #root폴더 지정
-ASSETS = json.loads((ROOT / "reference_assets.json").read_text(encoding="utf-8"))       #asset로드
-REFERENCE = json.loads((ROOT / "reference_data.json").read_text(encoding="utf-8"))      #
-PROBLEMS = {item["id"]: item for item in REFERENCE["problems"]}                         #
-TASKS = {item["id"]: item for item in REFERENCE["tasks"]}
-UPLOADS = Path(os.environ.get("UPLOAD_DIR", ROOT / "instance" / "uploads"))             #업로드 저장 파일 위치 
-EXTENSIONS = {"pdf", "txt", "zip", "doc", "docx", "ppt", "pptx", "xls", "xlsx", "hwp", "hwpx", "rtf", "png", "jpg", "jpeg", "gif", "webp"}
-ASSIGNMENT_FILE_OFFSET = 1_000_000
-INQUIRY_FILE_OFFSET = 2_000_000
-INQUIRY_CATEGORIES = ("출결문의", "온라인 교육", "오프라인 교육", "PBL/과제", "프로젝트", "기타")
+ROOT = Path(__file__).resolve().parent                                                  # root폴더 지정
+ASSETS = json.loads((ROOT / "reference_assets.json").read_text(encoding="utf-8"))       # asset로드 화면 리소스
+REFERENCE = json.loads((ROOT / "reference_data.json").read_text(encoding="utf-8"))      # 화면에 표시할 데이터 로드
+
+PROBLEMS = {item["id"]: item for item in REFERENCE["problems"]}                         # pbl 목록 
+TASKS = {item["id"]: item for item in REFERENCE["tasks"]}                               # 과제 목록 
+
+UPLOADS = Path(os.environ.get("UPLOAD_DIR", ROOT / "instance" / "uploads"))             # 업로드 저장 파일 위치 /app/instance/uploads
+ASSIGNMENT_FILE_OFFSET = 1_000_000                                                      # 과제 파일 id 오프셋
+INQUIRY_FILE_OFFSET = 2_000_000                                                         # 문의 글 파일 id 오프셋
+INQUIRY_CATEGORIES = ("출결문의", "온라인 교육", "오프라인 교육", "PBL/과제", "프로젝트", "기타")# 문의하기 카테고리들 
 CONTENT_LIMIT = 256 * 1024
 THUMBNAIL_LIMIT = 2 * 1024 * 1024
+
+# allow list 
 THUMBNAIL_TYPES = {"image/png": "png", "image/jpeg": "jpg", "image/gif": "gif", "image/webp": "webp", "image/svg+xml": "svg"}
+EXTENSIONS = {"pdf", "txt", "zip", "doc", "docx", "ppt", "pptx", "xls", "xlsx", "hwp", "hwpx", "rtf", "png", "jpg", "jpeg", "gif", "webp"}
 
 app = Flask(__name__)
-app.config.update(
+
+
+app.config.update(                                                                      #flask 설정
     SECRET_KEY=os.environ["SECRET_KEY"],                                                #세션 서명에 사용 
     MAX_CONTENT_LENGTH=16 * 1024 * 1024,                                                #업로드 크기 
     SESSION_COOKIE_NAME="sslc_lab_session",                                             #세션 정보 쿠키 이름
@@ -62,13 +68,14 @@ def db():
 
 
 def query(sql, values=(), one=False):
-    #execute query
+    # 안전하게 db 실행
     with db().cursor() as cursor:
         cursor.execute(sql, values)
         return cursor.fetchone() if one else cursor.fetchall()
 
 
 def unsafe_query(sql, one=False):
+    # 취약하게 db 실행 
     with db().cursor() as cursor:
         cursor.execute(sql)
         return cursor.fetchone() if one else cursor.fetchall()
@@ -84,13 +91,15 @@ def close_db(error=None):
 
 @app.before_request
 def load_user_and_check_csrf():
-    #csrf 토큰 
+    #요청 처리 전에 csrf 토큰 
     g.user = None
     if request.endpoint == "static":
         return
     if session.get("user_id"):
         g.user = query("SELECT id, username, display_name, role FROM users WHERE id=%s", (session["user_id"],), one=True)
+    
     if request.method == "POST":
+    #post시에 검사 
         expected = session.get("csrf_token", "")
         provided = request.form.get("csrf_token", "")
         if not expected or not hmac.compare_digest(expected.encode("utf-8"), provided.encode("utf-8")):
@@ -115,14 +124,18 @@ def security_headers(response):
 
 @app.context_processor
 def template_context():
+    #Flask에서 템플릿을 렌더링시 실행
+    # 세션에 csrf_token이 없으면 새로 만들고, 있으면 기존 값을 그대로 가져옴 및 데이터 공급
     token = session.setdefault("csrf_token", secrets.token_urlsafe(32))
     return {"current_user": g.get("user"), "csrf_token": token, "assets": ASSETS, "ref": lambda path: ASSETS["resources"].get(path, "data:,")}
 
 
 def login_required(view):
+    # 기존 라우트 함수의 이름과 메타데이터 유지 인증 데코레이터
     @wraps(view)
     def wrapped(*args, **kwargs):
         if not g.user:
+            # 로그인되지 않은 사용자는 로그인 페이지로 이동
             return redirect(url_for("login"))
         return view(*args, **kwargs)
     return wrapped
@@ -223,7 +236,7 @@ def fetch_external_content(url):
 
 @app.get("/my-class")
 def my_class_root():
-    return redirect(url_for("board", kind="notice") if g.user else url_for("login"))
+    return redirect(url_for("/index") if g.user else url_for("login"))
 
 
 @app.get("/")
