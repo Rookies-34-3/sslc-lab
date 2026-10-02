@@ -88,6 +88,16 @@
       "/static/reference/11155dadca3b8113bf29.css",
       "/static/reference/f5037e38bed91a47616d.css",
       "/static/reference/5bbe1e16a4f897ddff1f.css"
+    ],
+    "knowledge": [
+      "/static/reference/5ddf910f8ba8fc2d945e.css",
+      "/static/reference/65d87ce0d1e829912afd.css",
+      "/static/reference/5d47dc0ee2ca4781c1c2.css",
+      "/static/reference/ac0fb2758d638fe78e15.css",
+      "/static/reference/4143afa2820df8a2a062.css",
+      "/static/reference/11155dadca3b8113bf29.css",
+      "/static/reference/f5037e38bed91a47616d.css",
+      "/static/reference/5bbe1e16a4f897ddff1f.css"
     ]
   },
   "resources": {
@@ -109,6 +119,14 @@
     "/main/pbl-file/559/image/20260722_131203_%ED%8C%8C%EC%9D%B4%EC%8D%ACpbl1%EB%B2%88%EB%AC%B8%EC%A0%9C2.jpg": "/static/reference/686d665e79a915b05658.jpg",
     "/main/pbl-file/559/image/20260722_131157_%ED%8C%8C%EC%9D%B4%EC%8D%ACpbl1%EB%B2%88%EB%AC%B8%EC%A0%9C.jpg": "/static/reference/889153248ed05fc50661.jpg",
     "/icons/back.png": "/static/reference/a13c2d1c2af21519b73a.png",
+    "/main/pre-learning/20220729_13:07:09_dd9917e8-a5cd-7571-56d3-641c46b3836f.png": "/static/reference/66647cadeffefab02735.png",
+    "/main/pre-learning/20220729_13:05:19_f00fcd11-b556-286a-90c3-4bed48698835.png": "/static/reference/659eb246bd928e436838.png",
+    "/main/pre-learning/20220729_13:04:23_f252bc74-c8fe-a8fb-466d-bd44df9f9b5c.png": "/static/reference/85310937ec55d410a291.png",
+    "/main/pre-learning/20220729_13:02:49_cc25030f-8d15-f2c7-f3fa-804cabac34cc.png": "/static/reference/0c8f48433ffd60ba7775.png",
+    "/main/pre-learning/20260602_174718_%EA%B0%9C%EC%9D%B8%EC%A0%95%EB%B3%B4%EB%B3%B4%ED%98%B8%EC%9A%B4%EC%98%81.png": "/static/reference/4b5492e8fa14f1712f01.png",
+    "/main/pre-learning/20220520_17:00:24_python_programing.png": "/static/reference/162f83f455d98a47f9d3.png",
+    "/main/pre-learning/20260625_144719_secword.png": "/static/reference/4865efe56f073a893203.png",
+    "/main/pre-learning/20260625_144700_cla.png": "/static/reference/d91483bc8b5242850ae4.png",
     "/assets/fa-brands-400-F-vh2M2S.woff2": "/static/reference/70591731f20c10a7dfeb.woff2",
     "/assets/fa-regular-400-nlupHwI1.woff2": "/static/reference/6982de33cbdf0150ba84.woff2",
     "/assets/fa-solid-900-D3IoOn-o.woff2": "/static/reference/91eb286a1a12bc591119.woff2",

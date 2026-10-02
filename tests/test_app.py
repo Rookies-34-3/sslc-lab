@@ -221,22 +221,57 @@ class LabTests(unittest.TestCase):
                 public_path = re.search(rb'href="(/uploads/[^"]+' + re.escape(filename.encode()) + rb')"', admin)[1].decode()
                 self.assertEqual(Browser().get(public_path)[:2], (200, expected))
 
+    def test_knowledge_external_content(self):
+        status, page, _, _ = self.student.get("/pre-course/list")
+        self.assertEqual(status, 200)
+        self.assertIn("클라우드 엔지니어를 위한 핵심".encode(), page)
+        self.assertIn(b'href="/pre-course/write"', page)
+
+        path = "/pre-course/write"
+        token = self.student.token(path)
+        status, preview, _, _ = self.student.form(path, {
+            "csrf_token": token,
+            "title": "",
+            "url": "http://internal-service:9000/course",
+            "action": "preview",
+        })
+        self.assertEqual(status, 200)
+        self.assertIn("내부 전용 클라우드 보안 콘텐츠".encode(), preview)
+        self.assertIn(b"data:image/png;base64,", preview)
+
+        title = "SSRF 콘텐츠 " + uuid4().hex[:8]
+        status, listing, _, location = self.student.form(path, {
+            "csrf_token": self.student.token(path),
+            "title": title,
+            "url": "http://internal-service:9000/course",
+            "action": "save",
+        })
+        self.assertEqual((status, location), (200, "/pre-course/list"))
+        self.assertIn(title.encode(), listing)
+        thumbnail = re.search(rb'src="(/uploads/knowledge/[^"]+\.png)"', listing)[1].decode()
+        status, image, headers, _ = self.student.get(thumbnail)
+        self.assertEqual(status, 200)
+        self.assertTrue(image.startswith(b"\x89PNG\r\n\x1a\n"))
+        self.assertIn("image/png", headers["Content-Type"])
+
     def test_unknown_pages(self):
         for path in ["/my-class/pbl/99999", "/my-class/board/task/99999", "/my-class/board/unknown", "/customer/resources/99999", "/customer/faq/99999", "/customer/contact/99999", "/download/99999"]:
             with self.subTest(path=path):
                 self.assertEqual(self.student.get(path)[0], 404)
 
     def test_pages_and_categories(self):
-        for path in ["/", "/index", "/admin", "/my-class/pbl", "/my-class/pbl/1", "/my-class/board/notice", "/my-class/board/task", "/my-class/board/task/1", "/my-class/board/qna", "/my-class/board/write/qna", "/customer", "/customer/faq", "/customer/contact", "/customer/contact/write", "/mypage/my-information"]:
+        for path in ["/", "/index", "/admin", "/pre-course/list", "/my-class/pbl", "/my-class/pbl/1", "/my-class/board/notice", "/my-class/board/task", "/my-class/board/task/1", "/my-class/board/qna", "/my-class/board/write/qna", "/customer", "/customer/faq", "/customer/contact", "/customer/contact/write", "/mypage/my-information"]:
             with self.subTest(path=path):
                 status, body, _, _ = self.student.get(path)
                 self.assertEqual(status, 200)
                 self.assertIn("학생1".encode(), body)
                 self.assertNotIn(b"{{", body)
-                self.assertNotRegex(body, rb'(?:src|href)=[\'"]https?://')
+                self.assertNotRegex(body, rb'src=[\'"]https?://')
+                if path != "/pre-course/list":
+                    self.assertNotRegex(body, rb'href=[\'"]https?://')
         _, index_body, _, _ = self.student.get("/")
         self.assertIn("현재 구현된 기능".encode(), index_body)
-        for href in [b'/my-class/board/notice', b'/my-class/board/task', b'/my-class/board/qna', b'/my-class/pbl', b'/customer', b'/customer/faq', b'/customer/contact']:
+        for href in [b'/my-class/board/notice', b'/my-class/board/task', b'/my-class/board/qna', b'/my-class/pbl', b'/pre-course/list', b'/customer', b'/customer/faq', b'/customer/contact']:
             self.assertIn(b'href="' + href + b'"', index_body)
         self.assertRegex(index_body, rb'href="/mypage/my-information/\d+"')
         reference = json.loads((ROOT / "reference_data.json").read_text(encoding="utf-8"))["problems"]

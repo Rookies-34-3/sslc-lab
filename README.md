@@ -1,6 +1,6 @@
 # SSLC Lab
 
-제공된 SSLC MHTML 화면 자료를 바탕으로 만든 Flask 교육용 미러입니다. 로그인, 공지사항, 과제, 학습게시판, PBL, 자료실, FAQ, 문의하기, 마이페이지와 관리자 대시보드를 사용할 수 있습니다. SQL Injection, Reflected XSS, IDOR, 파일 업로드와 디렉터리 인덱싱 등을 실습할 수 있도록 일부 기능에 취약점을 구현했습니다. 아직 구현하지 않은 원본 화면 메뉴를 누르면 `미구현입니다.` 알림을 표시합니다.
+제공된 SSLC MHTML 화면 자료를 바탕으로 만든 Flask 교육용 미러입니다. 로그인, 공지사항, 과제, 학습게시판, PBL, 지식컨텐츠, 자료실, FAQ, 문의하기, 마이페이지와 관리자 대시보드를 사용할 수 있습니다. SQL Injection, Reflected XSS, SSRF, IDOR, 파일 업로드와 디렉터리 인덱싱 등을 실습할 수 있도록 일부 기능에 취약점을 구현했습니다. 아직 구현하지 않은 원본 화면 메뉴를 누르면 `미구현입니다.` 알림을 표시합니다.
 
 ## 로컬 실행
 
@@ -37,6 +37,7 @@ DB와 업로드 파일은 Docker named volume에 저장되어 컨테이너 재�
 | 과제 | 목록·검색·상세, 학생별 결과 파일 제출 및 다운로드 |
 | 학습게시판 | 목록·상세·검색·페이지 이동, 학생 글 작성, 첨부파일 1개 |
 | PBL | 36개 카드, 분야별 필터, 문제 상세, 파일 제출, 내 제출 파일 다운로드 |
+| 지식컨텐츠 | 8개 강의 카드, 외부 콘텐츠 등록, 서버 측 썸네일 가져오기 |
 | 자료실 | 목록·검색·상세 |
 | FAQ | 목록·검색·상세 |
 | 문의하기 | 전체 문의 목록·검색, 공개글·비밀글 선택, 상세 조회, 첨부파일, 관리자 답변 |
@@ -50,10 +51,11 @@ DB와 업로드 파일은 Docker named volume에 저장되어 컨테이너 재�
 
 문의 작성 화면의 `비밀글` 체크박스는 기본으로 선택되어 있습니다. 비밀글에만 자물쇠를 표시하고, 목록에서는 모든 사용자의 문의 제목을 볼 수 있습니다. 공개글 본문은 로그인한 사용자가 조회할 수 있습니다. 비밀글의 정상 링크에는 `secret` 쿼리가 붙으며 작성자와 관리자만 조회할 수 있지만, 해당 쿼리를 제거하면 권한 검사를 건너뜁니다. 기존 문의는 비밀글로 유지합니다.
 
-기존 DB에 비밀글 컬럼을 추가할 때는 아래 명령을 한 번 실행한 뒤 web을 다시 빌드합니다. 이미 컬럼이 있으면 DB 변경을 건너뛰며, 기존 데이터를 삭제하지 않습니다.
+기존 DB에 문의 비밀글 컬럼과 외부 콘텐츠 테이블을 추가할 때는 아래 명령을 한 번 실행한 뒤 web을 다시 빌드합니다. 이미 반영된 항목은 건너뛰며, 기존 데이터를 삭제하지 않습니다.
 
 ```powershell
-docker compose exec -T db sh -c 'export MYSQL_PWD; MYSQL_PWD=$MYSQL_ROOT_PASSWORD; exec mysql --user=root --database=sslc_lab' < db/02-support.sql
+Get-Content -Raw db/02-support.sql | docker compose exec -T db sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql --user=root --database=sslc_lab'
+Get-Content -Raw db/03-knowledge.sql | docker compose exec -T db sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql --user=root --database=sslc_lab'
 docker compose build web
 docker compose up -d --no-deps --wait web
 ```
@@ -67,6 +69,7 @@ docker compose up -d --no-deps --wait web
 | SQL Injection | 학습게시판 검색 `/my-class/board/qna` | `GET`, `content` | 검색어를 SQL 문자열에 직접 연결합니다. DB 오류 발생 시 오류 내용을 화면에 표시하고, 입력 조건에 따라 검색 결과가 달라질 수 있습니다. |
 | Reflected XSS | 학습게시판 검색 `/my-class/board/qna` | `GET`, `content` | 검색어를 검색 입력란의 HTML 속성에 인코딩 없이 반영합니다. 해당 화면의 CSP는 인라인 스크립트를 허용합니다. |
 | Reflected XSS | 로그인 실패 메시지 `/login` | `POST`, `userId` | 실패한 아이디를 HTML 인코딩 없이 메시지에 반영합니다. 로그인 화면의 CSP는 인라인 스크립트를 허용합니다. |
+| SSRF | 외부 콘텐츠 추가 `/pre-course/write` | `POST`, `url`, `action=preview` 또는 `save` | 서버가 콘텐츠 URL을 요청해 `og:image`를 찾고 썸네일도 다시 요청합니다. 대상 호스트와 IP 대역을 검사하지 않아 Docker 내부 HTTP 서비스에도 요청할 수 있습니다. |
 | IDOR | 마이페이지 `/mypage/my-information/<user_id>`, API `/api/profiles/<user_id>` | 화면 `GET`, API `GET`·`PATCH`, 경로의 `user_id` | 로그인 여부만 확인하고 요청자와 대상 사용자 ID를 비교하지 않습니다. 다른 사용자의 프로필 조회와 이메일·전화번호 수정이 가능합니다. |
 | 비밀글 권한 검증 우회 | 문의 상세 `/customer/contact/<inquiry_id>?secret=1` | `GET`, `secret` 쿼리의 존재 여부 | 다른 사용자의 비밀글 정상 링크는 `403`으로 거부하지만, `secret` 쿼리 항목을 제거하면 소유자 검사를 건너뛰고 본문을 반환합니다. |
 | 파일 확장자 검증 우회 | PBL·과제 제출, 게시판·문의 첨부파일 | `POST`, 파일의 `filename` | 마지막 확장자 대신 파일명에 허용 확장자 문자열이 포함되는지만 확인하므로 복수 확장자로 우회할 수 있습니다. |
@@ -92,7 +95,7 @@ docker compose up -d --no-deps --wait web
 
 저장 파일명에는 충돌 방지를 위한 임의 접두사가 붙습니다. 공지사항 첨부파일도 공통 업로드 함수를 사용하므로 파일 업로드 취약점이 적용되며, 글 작성은 관리자만 가능합니다. `/download/<file_id>`는 로그인이 필요하고 과제·PBL·문의 첨부파일의 소유자 또는 관리자 권한을 확인합니다. `/uploads/`의 직접 접근에는 이 검사가 없어 업로드·목록 노출·파일 접근을 연계해 볼 수 있습니다. 디렉터리 인덱싱 자체는 목록 노출이고, 코드 실행은 nginx의 실행 파일 경로와 `runner`가 담당합니다.
 
-SSRF는 내부 대상인 `internal-service`만 실행 중이며 사용자 URL을 받는 기능은 아직 없습니다. 포트 스캐너도 아직 구현하지 않았습니다. 인증 누락은 `/admin`과 `/uploads/`에서, 인증된 사용자의 권한 검증 누락은 문의 상세와 마이페이지 API에서 실습합니다.
+SSRF는 지식컨텐츠의 `외부 콘텐츠 추가하기`에서 실습합니다. `http://internal-service:9000/course`를 입력하고 `썸네일 가져오기`를 누르면 서버가 내부 HTML의 `og:image`를 읽고 내부 전용 이미지를 다시 요청합니다. 가져온 이미지는 등록할 때 `/uploads/knowledge/`에 저장되어 새 카드의 썸네일로 표시됩니다. `http`와 `https`만 받지만 대상 호스트와 IP 대역은 검사하지 않습니다. web 컨테이너에는 외부 네트워크를 연결하지 않았고 `internal-service`도 호스트 포트를 공개하지 않으므로 요청 범위는 격리된 Docker 네트워크 안으로 제한됩니다. 포트 스캐너는 아직 구현하지 않았습니다. 인증 누락은 `/admin`과 `/uploads/`에서, 인증된 사용자의 권한 검증 누락은 문의 상세와 마이페이지 API에서 실습합니다.
 
 ## 화면 자료
 
@@ -117,7 +120,7 @@ python -m venv .venv
   └─ nginx :8080
        ├─ web :8000 (Gunicorn + Flask)
        │    ├─ db :3306 (MySQL)
-       │    └─ internal-service :9000 (고정 JSON 응답)
+       │    └─ internal-service :9000 (`/course`, `/internal-thumbnail.png` SSRF 실습 응답)
        ├─ /uploads/ (파일 제공·디렉터리 인덱싱)
        └─ runner :9100 (업로드된 PHP·Python·CGI 실행)
 ```
@@ -136,6 +139,6 @@ Docker는 호스트 커널을 공유하므로 이 구성만으로 호스트 탈�
 python -m unittest discover -s tests -v
 ```
 
-현재 기능 테스트 12개를 사용합니다. 로그인·로그아웃, CSRF, 게시글 작성·검색·첨부파일, 공지 작성 권한, 과제·PBL 제출과 애플리케이션 다운로드 권한, 문의 작성·목록 구분·다른 계정의 상세 조회, 프로필 API 수정, 관리자 페이지 접근, 업로드 형식과 PHP·Python·CGI 실행, 구현 화면 링크와 로컬 리소스를 확인합니다. 검증 과정에서 가상 게시글과 제출 파일이 추가됩니다. localhost에서만 실행하도록 제한되어 있습니다. 테스트 통과는 현재 기능 동작을 확인한 결과이며, 모든 취약점 유형이나 EC2 격리를 검증했다는 뜻은 아닙니다.
+현재 기능 테스트 13개를 사용합니다. 로그인·로그아웃, CSRF, 게시글 작성·검색·첨부파일, 공지 작성 권한, 과제·PBL 제출과 애플리케이션 다운로드 권한, 문의 작성·목록 구분·다른 계정의 상세 조회, 프로필 API 수정, 관리자 페이지 접근, 업로드 형식과 PHP·Python·CGI 실행, 외부 콘텐츠 썸네일 SSRF와 카드 등록, 구현 화면 링크와 로컬 리소스를 확인합니다. 검증 과정에서 가상 게시글과 제출 파일이 추가됩니다. localhost에서만 실행하도록 제한되어 있습니다. 테스트 통과는 현재 기능 동작을 확인한 결과이며, 모든 취약점 유형이나 EC2 격리를 검증했다는 뜻은 아닙니다.
 
-주요 파일은 `app.py`, `compose.yaml`, `nginx/nginx.conf`, `Dockerfile.runner`, `upload_runner.py`, `db/init.sql`, `db/02-support.sql`, `templates/`, `static/app.css`, `static/app.js`입니다. 웹 서비스의 Python 라이브러리는 Flask, PyMySQL, Gunicorn이며 runner는 Python 표준 라이브러리와 PHP CLI를 사용합니다.
+주요 파일은 `app.py`, `compose.yaml`, `nginx/nginx.conf`, `Dockerfile.runner`, `upload_runner.py`, `db/init.sql`, `db/02-support.sql`, `db/03-knowledge.sql`, `templates/`, `static/app.css`, `static/app.js`입니다. 웹 서비스의 Python 라이브러리는 Flask, PyMySQL, Gunicorn이며 runner는 Python 표준 라이브러리와 PHP CLI를 사용합니다.

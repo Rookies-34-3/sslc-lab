@@ -22,10 +22,10 @@
       </div>
     {% endif %}
     <div class="render login">
-      {% if page_title %}<div class="lab-page-heading"><h1>{{ page_title }}</h1></div>{% elif current_user %}{% include 'reference/course.html' %}{% include 'reference/nav.html' %}{% endif %}
+      {% if active == 'knowledge' %}{% include 'reference/knowledge_heading.html' %}{% elif page_title %}<div class="lab-page-heading"><h1>{{ page_title }}</h1></div>{% elif current_user %}{% include 'reference/course.html' %}{% include 'reference/nav.html' %}{% endif %}
       {% for category, message in get_flashed_messages(with_categories=true) %}<div class="lab-flash {{ category }}" role="status">{{ message }}</div>{% endfor %}
-      <main class="{{ 'lab-standalone-main' if active in ['support', 'mypage'] else 'sc-kzwkWb hrpgQB' }}">
-        {% if active == 'support' %}<div class="lab-customer-layout">{% include 'customer_nav.html' %}<section class="lab-customer-content">{% elif active == 'mypage' %}<div class="lab-mypage-layout">{% else %}<div class="sc-dFSzXC gPXucV">{% endif %}
+      <main class="{{ 'lab-knowledge-main' if active == 'knowledge' else ('lab-standalone-main' if active in ['support', 'mypage'] else 'sc-kzwkWb hrpgQB') }}">
+        {% if active == 'support' %}<div class="lab-customer-layout">{% include 'customer_nav.html' %}<section class="lab-customer-content">{% elif active == 'mypage' %}<div class="lab-mypage-layout">{% elif active == 'knowledge' %}<div class="lab-knowledge-content">{% else %}<div class="sc-dFSzXC gPXucV">{% endif %}
         {% block content %}{% endblock %}
         {% if active == 'support' %}</section></div>{% else %}</div>{% endif %}
       </main>

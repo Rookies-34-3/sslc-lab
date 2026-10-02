@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="lab-content-form">
+  <div class="lab-content-form-heading">
+    <h1>외부 콘텐츠 추가하기</h1>
+    <a href="{{ url_for('knowledge_content') }}">목록으로</a>
+  </div>
+  <form method="post" action="{{ url_for('write_knowledge_content') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>콘텐츠 제목<input type="text" name="title" value="{{ form_title }}" maxlength="200" placeholder="썸네일을 가져오면 자동으로 입력됩니다."></label>
+    <label>외부 콘텐츠 URL<input type="url" name="url" value="{{ form_url }}" maxlength="2048" placeholder="https://example.com/course" required></label>
+    <div class="lab-content-form-buttons">
+      <button type="submit" name="action" value="preview" class="secondary">썸네일 가져오기</button>
+      <button type="submit" name="action" value="save">등록</button>
+    </div>
+  </form>
+  {% if preview %}
+  <div class="lab-thumbnail-preview">
+    <img src="{{ preview.data_url }}" alt="가져온 썸네일 미리보기">
+    <dl>
+      <div><dt>콘텐츠 응답</dt><dd>{{ preview.source_status }}</dd></div>
+      <div><dt>썸네일 응답</dt><dd>{{ preview.thumbnail_status }}</dd></div>
+      <div><dt>응답 시간</dt><dd>{{ preview.elapsed_ms }}ms</dd></div>
+      <div><dt>썸네일 URL</dt><dd>{{ preview.thumbnail_url }}</dd></div>
+    </dl>
+  </div>
+  {% elif preview_error %}
+  <p class="lab-preview-error" role="alert">{{ preview_error }}</p>
+  {% endif %}
+</section>
+{% endblock %}

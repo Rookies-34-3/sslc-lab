@@ -27,6 +27,7 @@ PAGES = {
     "pbl": "pbl.mhtml",
     "problem": "pbl에서 문제.mhtml",
     "mypage": "마이페이지.mhtml",
+    "knowledge": "지식 컨텐츠.mhtml",
 }
 CSS_URL = re.compile(r"url\(\s*(['\"]?)(.*?)\1\s*\)")
 ACTIVE_PATHS = {
@@ -38,6 +39,8 @@ ACTIVE_PATHS = {
     "/my-class/board/qna": "/my-class/board/qna",
     "/my-class/board/write/qna": "/my-class/board/write/qna",
     "/my-class/pbl": "/my-class/pbl",
+    "/pre-course": "/pre-course/list",
+    "/pre-course/list": "/pre-course/list",
     "/customer": "/customer",
     "/customer/faq": "/customer/faq",
     "/customer/contact": "/customer/contact",
@@ -220,6 +223,15 @@ def main():
 
     problem_body = archives["problem"][0].select_one(".jUVhzP")
     save("problem_body.html", clean(problem_body))
+
+    knowledge = archives["knowledge"][0].select_one(".render.login")
+    save("knowledge_heading.html", clean(knowledge.select_one(".krGcMb")))
+    knowledge_body = knowledge.select_one(".kpLUAB")
+    save("knowledge_intro.html", clean(knowledge_body.select_one(".cAczGt")))
+    knowledge_cards = knowledge_body.select_one(".fSAiJd")
+    for card in knowledge_cards.select(".gylEXM"):
+        card["data-unavailable"] = "true"
+    save("knowledge_cards.html", "".join(clean(card) for card in knowledge_cards.find_all(recursive=False)))
 
     data = {"notices": [], "problems": [], "tasks": [], "resources": SUPPORT_RESOURCES, "faqs": SUPPORT_FAQS}
     for row in notice.select("table tr"):
