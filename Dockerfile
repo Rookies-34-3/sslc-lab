@@ -10,6 +10,7 @@ RUN pip install --no-cache-dir -r requirements.txt \
     && chown lab:lab /app/instance/uploads
 
 COPY app.py internal_service.py reference_assets.json reference_data.json ./
+COPY modules ./modules
 COPY templates ./templates
 COPY static ./static
 USER 10000:10000

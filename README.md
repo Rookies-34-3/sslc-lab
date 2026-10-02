@@ -142,3 +142,20 @@ python -m unittest discover -s tests -v
 현재 기능 테스트 13개를 사용합니다. 로그인·로그아웃, CSRF, 게시글 작성·검색·첨부파일, 공지 작성 권한, 과제·PBL 제출과 애플리케이션 다운로드 권한, 문의 작성·목록 구분·다른 계정의 상세 조회, 프로필 API 수정, 관리자 페이지 접근, 업로드 형식과 PHP·Python·CGI 실행, 외부 콘텐츠 썸네일 SSRF와 카드 등록, 구현 화면 링크와 로컬 리소스를 확인합니다. 검증 과정에서 가상 게시글과 제출 파일이 추가됩니다. localhost에서만 실행하도록 제한되어 있습니다. 테스트 통과는 현재 기능 동작을 확인한 결과이며, 모든 취약점 유형이나 EC2 격리를 검증했다는 뜻은 아닙니다.
 
 주요 파일은 `app.py`, `compose.yaml`, `nginx/nginx.conf`, `Dockerfile.runner`, `upload_runner.py`, `db/init.sql`, `db/02-support.sql`, `db/03-knowledge.sql`, `templates/`, `static/app.css`, `static/app.js`입니다. 웹 서비스의 Python 라이브러리는 Flask, PyMySQL, Gunicorn이며 runner는 Python 표준 라이브러리와 PHP CLI를 사용합니다.
+
+`app.py`는 Flask 앱 생성·설정, 공통 처리 등록, 인덱스, 헬스체크와 오류 화면을 담당하는 진입점입니다. 기능 코드는 `modules/`에서 관리합니다.
+
+| 파일 | 담당 기능 |
+| --- | --- |
+| `modules/database.py` | DB 연결·쿼리·연결 종료·초기 데이터 |
+| `modules/common.py` | 공통 화면 자료·경로·템플릿 렌더링 |
+| `modules/auth.py` | 로그인·로그아웃·세션 사용자 확인·CSRF |
+| `modules/board.py` | 공지사항·학습게시판 |
+| `modules/learning.py` | 과제·PBL·파일 제출 |
+| `modules/support.py` | 자료실·FAQ·문의하기 |
+| `modules/knowledge.py` | 지식컨텐츠·외부 콘텐츠 미리보기·등록 |
+| `modules/mypage.py` | 마이페이지·프로필 REST API |
+| `modules/files.py` | 공통 업로드·다운로드 |
+| `modules/admin.py` | 관리자 화면 |
+
+각 화면 모듈의 `register_routes(app)`를 진입점에서 호출합니다. 기존 URL과 endpoint 이름을 유지하므로 템플릿의 `url_for()`와 JavaScript의 API 경로를 그대로 사용합니다. 실행 명령도 `python app.py --init-db`와 Gunicorn의 `app:app`을 유지합니다. `internal_service.py`와 `upload_runner.py`는 각각 별도 컨테이너에서 실행하는 서비스를 담당합니다.
