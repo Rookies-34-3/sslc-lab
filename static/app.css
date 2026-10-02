@@ -102,6 +102,26 @@ td.title .file-icon { position: absolute; right: 0; top: 50%; transform: transla
 .lab-admin-section table { width: 100%; border-collapse: collapse; background: white; }
 .lab-admin-section th, .lab-admin-section td { padding: 10px; border: 1px solid #ddd; text-align: left; }
 .lab-admin-section th { background: #f3f3f3; }
+.lab-knowledge-main, .lab-knowledge-content { width: 100%; }
+.lab-knowledge-actions { display: flex; justify-content: flex-end; width: 100%; max-width: 1200px; margin: 22px auto 0; box-sizing: border-box; }
+.lab-knowledge-actions a, .lab-content-form button { padding: 12px 22px; border: 0; border-radius: 5px; color: #fff; background: #ec7422; font-size: 15px; font-weight: 600; text-decoration: none; cursor: pointer; }
+.lab-external-content-card { color: inherit; text-decoration: none; }
+.lab-content-form { max-width: 900px; margin: 50px auto 100px; padding: 35px; border: 1px solid #ddd; border-radius: 8px; background: #fff; box-sizing: border-box; }
+.lab-content-form-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
+.lab-content-form-heading h1 { margin: 0; font-size: 30px; }
+.lab-content-form-heading a { color: #777; }
+.lab-content-form form { display: grid; gap: 20px; }
+.lab-content-form label { display: grid; gap: 8px; font-weight: 600; }
+.lab-content-form input { width: 100%; padding: 13px 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font: inherit; }
+.lab-content-form-buttons { display: flex; justify-content: flex-end; gap: 10px; }
+.lab-content-form button.secondary { color: #ec7422; background: #fff; border: 1px solid #ec7422; }
+.lab-thumbnail-preview { display: grid; grid-template-columns: minmax(250px, 420px) 1fr; gap: 25px; margin-top: 30px; padding-top: 30px; border-top: 1px solid #ddd; }
+.lab-thumbnail-preview img { width: 100%; border-radius: 6px; }
+.lab-thumbnail-preview dl { margin: 0; }
+.lab-thumbnail-preview dl div { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 8px; padding: 8px 0; }
+.lab-thumbnail-preview dt { color: #777; }
+.lab-thumbnail-preview dd { margin: 0; overflow-wrap: anywhere; }
+.lab-preview-error { margin-top: 20px !important; padding: 14px 16px; color: #a3261b !important; background: #fff0ed; border: 1px solid #e5a49d; border-radius: 5px; }
 @media (max-width: 800px) {
   .lab-customer-layout { grid-template-columns: 1fr; }
   .lab-customer-nav { flex-direction: row; overflow-x: auto; }
@@ -113,4 +133,8 @@ td.title .file-icon { position: absolute; right: 0; top: 50%; transform: transla
   .lab-profile-card { padding: 25px 20px; }
   .lab-profile-tabs { margin: -25px -20px 25px; }
   .lab-index-grid { grid-template-columns: repeat(2, 1fr); }
+  .lab-knowledge-actions { margin-left: 18px; margin-right: 18px; }
+  .lab-content-form { margin: 30px 18px 60px; padding: 22px; }
+  .lab-content-form-heading, .lab-content-form-buttons { align-items: stretch; flex-direction: column; }
+  .lab-thumbnail-preview { grid-template-columns: 1fr; }
 }

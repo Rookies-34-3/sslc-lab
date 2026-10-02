@@ -1,4 +1,24 @@
-"""Integration checks for the local Compose service. Run after docker compose up."""
+'''사이트 기능 테스트 
+실행: python -m unittest discover -s tests -v
+
+주요 검증 항목:
+- 로그인 / 로그아웃 / 세션 처리
+- CSRF 토큰 검증
+- 게시글 작성, 검색, 첨부파일 업로드 및 다운로드
+- 공지사항 관리자 권한 확인
+- 과제 / PBL 파일 제출 및 다운로드 권한
+- 문의글 및 비밀글 권한 우회 동작
+- 프로필 API 및 IDOR 실습 동작
+- 파일 업로드 검증
+- 업로드된 PHP / Python / CGI 코드 실행
+- SSRF를 통한 내부 서비스 접근
+- 존재하지 않는 페이지의 404 처리
+- 주요 페이지 렌더링 및 링크 확인
+- CSP, nosniff 등 응답 보안 헤더 확인
+- 로컬 CSS / 이미지 / 폰트 리소스 정상 여부 확인
+
+'''
+
 import html
 import json
 import os
@@ -221,22 +241,58 @@ class LabTests(unittest.TestCase):
                 public_path = re.search(rb'href="(/uploads/[^"]+' + re.escape(filename.encode()) + rb')"', admin)[1].decode()
                 self.assertEqual(Browser().get(public_path)[:2], (200, expected))
 
+    def test_knowledge_external_content(self):
+        status, page, _, _ = self.student.get("/pre-course/list")
+        self.assertEqual(status, 200)
+        self.assertIn("클라우드 엔지니어를 위한 핵심".encode(), page)
+        self.assertIn(b'href="/pre-course/write"', page)
+
+        path = "/pre-course/write"
+        token = self.student.token(path)
+        status, preview, _, _ = self.student.form(path, {
+            "csrf_token": token,
+            "title": "",
+            "url": "http://internal-service:9000/course",
+            "action": "preview",
+        })
+        self.assertEqual(status, 200)
+        self.assertIn(b"SSRF SUCCESS - internal-service reached", preview)
+        self.assertIn(b"data:image/svg+xml;base64,", preview)
+
+        title = "SSRF 콘텐츠 " + uuid4().hex[:8]
+        status, listing, _, location = self.student.form(path, {
+            "csrf_token": self.student.token(path),
+            "title": title,
+            "url": "http://internal-service:9000/course",
+            "action": "save",
+        })
+        self.assertEqual((status, location), (200, "/pre-course/list"))
+        self.assertIn(title.encode(), listing)
+        thumbnail = re.search(rb'src="(/uploads/knowledge/[^"]+\.svg)"', listing)[1].decode()
+        status, image, headers, _ = self.student.get(thumbnail)
+        self.assertEqual(status, 200)
+        self.assertIn(b"SSRF SUCCESS", image)
+        self.assertIn(b"SSLC{internal_network_access}", image)
+        self.assertIn("image/svg+xml", headers["Content-Type"])
+
     def test_unknown_pages(self):
         for path in ["/my-class/pbl/99999", "/my-class/board/task/99999", "/my-class/board/unknown", "/customer/resources/99999", "/customer/faq/99999", "/customer/contact/99999", "/download/99999"]:
             with self.subTest(path=path):
                 self.assertEqual(self.student.get(path)[0], 404)
 
     def test_pages_and_categories(self):
-        for path in ["/", "/index", "/admin", "/my-class/pbl", "/my-class/pbl/1", "/my-class/board/notice", "/my-class/board/task", "/my-class/board/task/1", "/my-class/board/qna", "/my-class/board/write/qna", "/customer", "/customer/faq", "/customer/contact", "/customer/contact/write", "/mypage/my-information"]:
+        for path in ["/", "/index", "/admin", "/pre-course/list", "/my-class/pbl", "/my-class/pbl/1", "/my-class/board/notice", "/my-class/board/task", "/my-class/board/task/1", "/my-class/board/qna", "/my-class/board/write/qna", "/customer", "/customer/faq", "/customer/contact", "/customer/contact/write", "/mypage/my-information"]:
             with self.subTest(path=path):
                 status, body, _, _ = self.student.get(path)
                 self.assertEqual(status, 200)
                 self.assertIn("학생1".encode(), body)
                 self.assertNotIn(b"{{", body)
-                self.assertNotRegex(body, rb'(?:src|href)=[\'"]https?://')
+                self.assertNotRegex(body, rb'src=[\'"]https?://')
+                if path != "/pre-course/list":
+                    self.assertNotRegex(body, rb'href=[\'"]https?://')
         _, index_body, _, _ = self.student.get("/")
         self.assertIn("현재 구현된 기능".encode(), index_body)
-        for href in [b'/my-class/board/notice', b'/my-class/board/task', b'/my-class/board/qna', b'/my-class/pbl', b'/customer', b'/customer/faq', b'/customer/contact']:
+        for href in [b'/my-class/board/notice', b'/my-class/board/task', b'/my-class/board/qna', b'/my-class/pbl', b'/pre-course/list', b'/customer', b'/customer/faq', b'/customer/contact']:
             self.assertIn(b'href="' + href + b'"', index_body)
         self.assertRegex(index_body, rb'href="/mypage/my-information/\d+"')
         reference = json.loads((ROOT / "reference_data.json").read_text(encoding="utf-8"))["problems"]

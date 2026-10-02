@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="sc-oBxuN kpLUAB">
+  {% include 'reference/knowledge_intro.html' %}
+  <div class="lab-knowledge-actions"><a href="{{ url_for('write_knowledge_content') }}">외부 콘텐츠 추가하기</a></div>
+  <div class="sc-crhfPb fSAiJd">
+    {% include 'reference/knowledge_cards.html' %}
+    {% for content in contents %}
+    <a class="sc-dgcZxp gylEXM lab-external-content-card" href="{{ content.source_url }}" target="_blank" rel="noopener noreferrer">
+      <div class="sc-cnVHiu fiGtph"><img alt="{{ content.title }} 썸네일" src="/uploads/{{ content.thumbnail_path }}"></div>
+      <div class="sc-xwuxA hsbIKS">{{ content.title }}</div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
