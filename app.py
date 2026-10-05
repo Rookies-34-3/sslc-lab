@@ -7,10 +7,10 @@ from datetime import timedelta
 
 from flask import Flask, g, jsonify, redirect, request, url_for
 
-from modules import admin, auth, board, files, knowledge, learning, mypage, support
-from modules.auth import login_required
-from modules.common import render_page, template_context
-from modules.database import close_db, query, seed_data
+from modules import admin, auth, board, files, knowledge, learning, mypage, support    #기능 구현 모듈
+from modules.auth import login_required                                                #로그인
+from modules.common import render_page, template_context                               #공통
+from modules.database import close_db, query, seed_data                                #db
 
 
 app = Flask(__name__)
@@ -26,11 +26,11 @@ app.config.update(                                                              
 )
 
 
-app.before_request(auth.load_user_and_check_csrf)
-app.context_processor(template_context)
-app.teardown_appcontext(close_db)
+app.before_request(auth.load_user_and_check_csrf)                                       #csrf토큰 검사
+app.context_processor(template_context)                                                 #템플릿 관련
+app.teardown_appcontext(close_db)                                                       #db 종료
 
-for feature_module in (auth, learning, board, knowledge, support, mypage, files, admin):
+for feature_module in (auth, learning, board, knowledge, support, mypage, files, admin):#모듈 라우트 등록
     feature_module.register_routes(app)
 
 
@@ -40,16 +40,20 @@ def security_headers(response):
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Referrer-Policy"] = "same-origin"
+
+    # xss 취약 스크립트 csp 정책 설정
     vulnerable_xss = request.endpoint == "login" or (
         request.endpoint == "board" and request.view_args and request.view_args.get("kind") == "qna"
     )
     script_policy = "script-src 'self' 'unsafe-inline';" if vulnerable_xss else "script-src 'self';"
+    
     response.headers["Content-Security-Policy"] = "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; " + script_policy + " connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
     if request.endpoint != "static":
         response.headers["Cache-Control"] = "no-store"
     return response
 
 
+#my class 라우팅 
 @app.get("/my-class")
 def my_class_root():
     return redirect(url_for("feature_index") if g.user else url_for("login"))
@@ -82,6 +86,7 @@ def health():
     return jsonify(status="ok")
 
 
+#Flask의 공통 에러 핸들러
 @app.errorhandler(400)
 @app.errorhandler(403)
 @app.errorhandler(404)
