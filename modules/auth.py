@@ -49,7 +49,8 @@ def login():
             session["user_id"] = user["id"]
             session["csrf_token"] = secrets.token_urlsafe(32)
             session.permanent = True
-            return redirect(url_for("board", kind="notice"))
+            #return redirect(url_for("board", kind="notice")) 인덱스 페이지로 리다이랙트 수정 
+            return redirect(url_for("feature_index"))
         flash(username + " 계정의 아이디 또는 비밀번호를 확인해주세요.", "error")
     elif g.user:
         return redirect(url_for("board", kind="notice"))
