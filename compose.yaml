@@ -116,32 +116,6 @@ services:
       timeout: 5s
       retries: 3
 
-  ssrf-verifier:
-    build:
-      context: ./ssrf-verifier
-    image: sslc-lab-ssrf-verifier:local
-    networks: [lab, proxy]
-    read_only: true
-    tmpfs:
-      - /tmp:rw,noexec,nosuid,size=8m
-    cap_drop: [ALL]
-    security_opt: [no-new-privileges:true]
-    pids_limit: 30
-    mem_limit: 64m
-    cpus: 0.25
-    restart: unless-stopped
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "python",
-          "-c",
-          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:9001/health', timeout=3).close()"
-        ]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-
   runner:
     build:
       context: .

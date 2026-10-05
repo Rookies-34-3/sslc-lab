@@ -102,6 +102,14 @@ SSRF는 지식컨텐츠의 `외부 콘텐츠 추가하기`에서 실습합니다
 
 상단 메뉴·로고·클래스 정보·배너·게시판·PBL 카드의 원본 스타일을 재사용합니다. 구현하지 않은 링크에는 `data-unavailable` 표시를 남기고, 클릭하면 이동을 막은 뒤 `미구현입니다.` 알림을 표시합니다. 필요한 클릭 동작만 작은 JavaScript로 연결했습니다.
 
+화면 자료를 갱신할 때만 아래 명령을 실행합니다. 일반 실행에는 필요하지 않습니다.
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+.\.venv\Scripts\python.exe tools/import_reference.py
+```
+
 추출 과정은 공개 폰트 서버에서 폰트를 처음 다운로드할 수 있으며, 이미 저장된 폰트는 재사용합니다. 추출한 리소스·참조 템플릿·JSON을 다시 생성하며 원본 MHTML은 수정하지 않습니다. 로고와 원본 화면은 제공된 수업 자료에 기반한 교육용 미러에 사용합니다.
 
 ## 컨테이너 구성
