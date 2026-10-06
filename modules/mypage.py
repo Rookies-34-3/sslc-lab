@@ -19,10 +19,11 @@ def mypage_root():
 def mypage(user_id):
     return render_page("mypage.html", "mypage", "mypage", page_title="내 정보 관리", profile_user_id=user_id)
 
-
+#idor 취약 코드 
 def profile_api(user_id):
     if not g.user:
         return jsonify(error="로그인이 필요합니다."), 401
+    #로그인만 검사하고 id만 id로 검사
     profile = query(
         "SELECT u.id AS user_id, u.username, u.display_name, u.role, COALESCE(p.email, '') AS email, COALESCE(p.phone, '') AS phone "
         "FROM users u LEFT JOIN user_profiles p ON p.user_id=u.id WHERE u.id=%s",

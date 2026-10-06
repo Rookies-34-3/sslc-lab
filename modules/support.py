@@ -96,6 +96,7 @@ def write_inquiry():
 @login_required
 def inquiry_detail(inquiry_id):
     inquiry = get_inquiry(inquiry_id)
+    #불충분한 검증 취약점 
     if inquiry["is_secret"] and "secret" in request.args and inquiry["owner_id"] != g.user["id"] and g.user["role"] != "admin":
         abort(403)
     if request.method == "POST":

@@ -15,6 +15,7 @@ from modules.database import query
 def load_user_and_check_csrf():
     #요청 처리 전에 csrf 토큰
     g.user = None
+    #정적 처리 
     if request.endpoint == "static":
         return
     if session.get("user_id"):

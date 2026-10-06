@@ -9,7 +9,7 @@ from modules.auth import login_required
 from modules.common import UPLOADS
 from modules.database import db, query
 
-
+#허용 목록
 EXTENSIONS = {"pdf", "txt", "zip", "doc", "docx", "ppt", "pptx", "xls", "xlsx", "hwp", "hwpx", "rtf", "png", "jpg", "jpeg", "gif", "webp"}
 
 
@@ -19,6 +19,7 @@ def save_upload(upload, *, post_id=None, problem_id=None, area="files"):
     name = upload.filename.replace("\\", "/")
     if not name or len(name) > 180 or any(ord(char) < 32 for char in name):
         abort(400, description="파일 이름을 확인해주세요.")
+    #취약한 설정
     if not any("." + extension in name.lower() for extension in EXTENSIONS):
         abort(400, description="지원하는 문서·이미지·압축 파일을 선택해주세요.")
     UPLOADS.mkdir(parents=True, exist_ok=True)
@@ -56,6 +57,6 @@ def download(file_id):
         abort(404)
     return send_from_directory(UPLOADS, attachment["stored_name"], as_attachment=True, download_name=attachment["original_name"], mimetype="application/octet-stream")
 
-
+#get요청 가능
 def register_routes(app):
     app.add_url_rule("/download/<int:file_id>", view_func=download, methods=["GET"])
